@@ -2,10 +2,11 @@ import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const text = await request.text();
-    console.log('Raw body received:', text);
+    const body = await request.json();
+    if (!body?.googleToken) {
+      return new Response(JSON.stringify({ error: 'Falta googleToken' }), { status: 400 });
+    }
 
-    const body = JSON.parse(text);
     const apiUrl = import.meta.env.API_URL;
 
     const response = await fetch(`${apiUrl}/auth/google`, {

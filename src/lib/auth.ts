@@ -59,8 +59,6 @@ export async function loginWithGoogle(): Promise<void> {
           return;
         }
 
-        console.log('Google response:', response);
-
         try {
           const res = await fetch('/api/auth/google', {
             method: 'POST',
@@ -70,7 +68,6 @@ export async function loginWithGoogle(): Promise<void> {
 
           if (!res.ok) {
             const err = await res.json();
-            console.log('Error response from server:', err);
             reject(new Error(err.detail || err.error || 'Error al autenticar'));
             return;
           }

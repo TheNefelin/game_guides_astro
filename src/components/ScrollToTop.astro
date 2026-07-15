@@ -7,12 +7,19 @@
 
 <script>
   const btn = document.getElementById('scrollTop') as HTMLButtonElement;
+  let ticking = false;
 
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 200) {
-      btn.classList.remove('opacity-0', 'pointer-events-none');
-    } else {
-      btn.classList.add('opacity-0', 'pointer-events-none');
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        if (window.scrollY > 200) {
+          btn.classList.remove('opacity-0', 'pointer-events-none');
+        } else {
+          btn.classList.add('opacity-0', 'pointer-events-none');
+        }
+        ticking = false;
+      });
+      ticking = true;
     }
   });
 

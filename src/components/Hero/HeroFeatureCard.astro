@@ -2,6 +2,7 @@
 interface Props {
   title: string;
   icon: string;
+  variant: string;
   gradient: string;
   border: string;
   iconColor: string;
@@ -11,14 +12,18 @@ const {
   title,
   icon,
   gradient,
+  variant,
   border,
   iconColor
 } = Astro.props;
+
+const cardClasses = ['w-36 h-48 rounded-2xl backdrop-blur-sm flex flex-col items-center justify-center p-4', gradient, border].filter(Boolean).join(' ');
+const iconClasses = [variant, icon, iconColor, 'text-3xl mb-2'].filter(Boolean).join(' ');
 ---
 
 <section class="flex justify-center">
-  <div class={`w-36 h-48 rounded-2xl ${gradient} ${border} backdrop-blur-sm flex flex-col items-center justify-center p-4`}>
-    <i class={`fa-solid ${icon} ${iconColor} text-3xl mb-2`}></i>
+  <div class={cardClasses}>
+    <i class={iconClasses}></i>
     <span class="text-base-content text-sm font-bold">{title}</span>
   </div>
 </section>

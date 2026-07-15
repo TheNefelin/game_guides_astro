@@ -4,17 +4,20 @@ Frontend público del proyecto Game Guides desarrollado con Astro 7 + Tailwind 4
 
 ---
 
-## Requisitos
+## Requisitos + Dependencias
+### Instalar pnpm
+
+```sh
+npm install -g pnpm
+```
 
 - **Node.js** 22.12+ (versión del proyecto)
 - **pnpm** (se recomienda sobre npm por seguridad y rendimiento)
 - [Astro](https://docs.astro.build/en/install-and-setup)
 - [DaisyUI + Tailwind](https://daisyui.com/docs/install/astro)
-
-### Instalar pnpm
-
+- [Font Awesome](https://fontawesome.com)
 ```sh
-npm install -g pnpm
+pnpm add @fortawesome/fontawesome-free
 ```
 
 ---
