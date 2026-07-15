@@ -1,0 +1,70 @@
+---
+import googleIcon from '@/assets/images/google.svg';
+---
+
+<div class="flex items-center">
+  <!-- Not authenticated -->
+  <div id="auth-login">
+    <button id="googleLoginBtn"
+            class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm font-medium">
+      <img src={googleIcon.src} alt="Google" class="w-5 h-5" />
+      Iniciar sesión
+    </button>
+  </div>
+
+  <!-- Authenticated with DaisyUI dropdown -->
+  <div id="auth-user" class="hidden dropdown dropdown-end">
+    <div tabindex="0" role="button" id="avatarBtn">
+      <img id="userAvatar" class="w-8 h-8 rounded-full ring-2 ring-transparent hover:ring-emerald-400 transition-all" />
+    </div>
+    <div tabindex="0" class="dropdown-content mt-2 w-48 rounded-xl py-2 z-50"
+         style="background: rgba(15, 15, 25, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
+      <div class="px-4 py-2 text-sm text-white font-medium truncate" id="userName"></div>
+      <div class="px-4 py-1 text-xs text-gray-500 truncate" id="userEmail"></div>
+      <hr class="my-2 border-white/5" />
+      <button id="logoutBtn" class="w-full text-left px-4 py-2 text-sm text-gray-400 hover:text-red-400 hover:bg-white/5 transition-colors">
+        Cerrar sesión
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { loginWithGoogle, logout, getUser, isAuthenticated } from '@/lib/auth';
+
+  const loginSection = document.getElementById('auth-login')!;
+  const userSection = document.getElementById('auth-user')!;
+  const loginBtn = document.getElementById('googleLoginBtn') as HTMLButtonElement;
+  const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
+  const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
+  const userName = document.getElementById('userName')!;
+  const userEmail = document.getElementById('userEmail')!;
+
+  function updateUI() {
+    if (isAuthenticated()) {
+      loginSection.classList.add('hidden');
+      userSection.classList.remove('hidden');
+
+      const user = getUser();
+      if (user) {
+        userAvatar.src = user.picture || '';
+        userName.textContent = user.name || '';
+        userEmail.textContent = user.email || '';
+      }
+    } else {
+      loginSection.classList.remove('hidden');
+      userSection.classList.add('hidden');
+    }
+  }
+
+  updateUI();
+
+  loginBtn.addEventListener('click', () => {
+    loginWithGoogle().catch(console.error);
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    logout();
+    updateUI();
+  });
+</script>

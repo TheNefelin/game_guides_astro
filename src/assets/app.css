@@ -1,2 +1,77 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+body {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+.font-gaming {
+  font-family: 'Orbitron', monospace;
+}
+
+.hero-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-glow::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(0, 255, 170, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(0, 100, 255, 0.1) 0%, transparent 50%);
+  animation: heroPulse 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes heroPulse {
+  0% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+  100% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+}
+
+.neon-text {
+  color: transparent;
+  background: linear-gradient(to right, #34d399, #22d3ee);
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  text-shadow: 
+    0 0 10px rgba(0, 255, 170, 0.5), 
+    0 0 20px rgba(0, 255, 170, 0.3);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-base-100: #0a0a0f;
+  --color-base-200: #12121a;
+  --color-base-300: #1a1a25;
+  --color-base-content: #ffffff;
+  --color-primary: #00ffaa;
+  --color-primary-content: #000000;
+  --color-secondary: #00cc88;
+  --color-secondary-content: #000000;
+  --color-accent: #22d3ee;
+  --color-accent-content: #000000;
+  --color-neutral: #1a1a2e;
+  --color-neutral-content: #ffffff;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --color-base-100: #f5f5fa; /* #f5f5fa; */
+  --color-base-200: #eeeef3;
+  --color-base-300: #e2e2e8;
+  --color-base-content: #1a1a2e;
+  --color-primary: #00cc88;
+  --color-primary-content: #ffffff;
+  --color-secondary: #00aa66;
+  --color-secondary-content: #ffffff;
+  --color-accent: #0891b2;
+  --color-accent-content: #ffffff;
+  --color-neutral: #e5e5e5;
+  --color-neutral-content: #1a1a2e;
+}

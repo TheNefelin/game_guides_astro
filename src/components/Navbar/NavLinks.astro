@@ -1,0 +1,17 @@
+---
+export interface Props {
+  links: { href: string; label: string }[];
+}
+
+const { links } = Astro.props;
+---
+
+<div class="hidden md:flex items-center gap-6">
+  {
+    links.map((link) => (
+      <a href={link.href} class="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
+        {link.label}
+      </a>
+    ))
+  }
+</div>
