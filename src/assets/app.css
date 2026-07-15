@@ -22,8 +22,8 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at 30% 50%, rgba(0, 255, 170, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 70% 50%, rgba(0, 100, 255, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at 30% 50%, color-mix(in srgb, var(--color-primary) 8%, transparent) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, color-mix(in srgb, var(--color-accent) 8%, transparent) 0%, transparent 50%);
   animation: heroPulse 4s ease-in-out infinite alternate;
   pointer-events: none;
 }
@@ -34,14 +34,9 @@ body {
 }
 
 .neon-text {
-  color: transparent;
-  background: linear-gradient(to right, #34d399, #22d3ee);
-  background-clip: text;
-  -webkit-background-clip: text;
-
   text-shadow: 
-    0 0 10px rgba(0, 255, 170, 0.5), 
-    0 0 20px rgba(0, 255, 170, 0.3);
+    0 0 10px color-mix(in srgb, var(--color-primary) 50%, transparent),
+    0 0 20px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 [data-theme="dark"] {
