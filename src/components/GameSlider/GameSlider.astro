@@ -1,0 +1,71 @@
+---
+import GameSliderCard from "./GameSliderCard.astro";
+
+interface Game {
+  name: string;
+  slug: string;
+  cover_url: string;
+  genre_name: string;
+}
+
+interface Props {
+  games: Game[];
+}
+
+const { games } = Astro.props;
+---
+
+<section class="pt-20 pb-2 relative z-10">
+  <div class="max-w-7xl mx-auto px-4 lg:px-8">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-gray-500 text-xs font-medium uppercase tracking-widest flex items-center gap-2">
+        <i class="fa-solid fa-bolt text-emerald-400 text-xs"></i>
+        Acceso Rápido
+      </span>
+      <div class="flex gap-1">
+        <button class="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-emerald-400 hover:border-emerald-400/30 transition-all swiper-quick-prev">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <button class="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-emerald-400 hover:border-emerald-400/30 transition-all swiper-quick-next">
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+    <div class="swiper quickSwiper">
+      <div class="swiper-wrapper">
+        {
+          games.map((game) => (
+            <a href={`/game/${game.slug}`} class="swiper-slide group">
+              <GameSliderCard game={game} />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import Swiper from 'swiper';
+  import { Navigation } from 'swiper/modules';
+  import 'swiper/css';
+  import 'swiper/css/navigation';
+
+  new Swiper('.quickSwiper', {
+    modules: [Navigation],
+    slidesPerView: 3,
+    spaceBetween: 12,
+    grabCursor: true,
+    navigation: {
+      nextEl: '.swiper-quick-next',
+      prevEl: '.swiper-quick-prev',
+    },
+    breakpoints: {
+      480: { slidesPerView: 4, spaceBetween: 12 },
+      640: { slidesPerView: 5, spaceBetween: 14 },
+      768: { slidesPerView: 4, spaceBetween: 16 },
+      900: { slidesPerView: 5, spaceBetween: 16 },
+      1024: { slidesPerView: 6, spaceBetween: 16 },
+    },
+  });
+</script>

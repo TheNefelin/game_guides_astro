@@ -7,10 +7,14 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const apiUrl = import.meta.env.API_URL;
+  const apiKey = import.meta.env.API_KEY;
 
   const response = await fetch(`${apiUrl}/auth/refresh`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json', 
+      'X-API-Key': apiKey 
+    },
     body: JSON.stringify({ refresh_token: body.refresh_token }),
   });
 

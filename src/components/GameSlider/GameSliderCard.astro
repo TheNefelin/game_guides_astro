@@ -1,0 +1,29 @@
+---
+interface Game {
+  name: string;
+  slug: string;
+  cover_url: string;
+  genre_name: string;
+}
+
+interface Props {
+  game: Game;
+}
+
+const { game } = Astro.props;
+---
+
+<div class="glass-card rounded-xl p-3 flex flex-col items-center gap-2 hover:border-emerald-400/30 transition-all cursor-pointer">
+  <div class="w-24 h-24 rounded-xl overflow-hidden bg-base-300 ring-2 ring-white/5 group-hover:ring-emerald-400/30 transition-all">
+    <img
+      src={game.cover_url}
+      alt={game.name}
+      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+      loading="lazy"
+      width="96"
+      height="96"
+    />
+  </div>
+  <span class="text-white text-xs font-semibold text-center leading-tight">{game.name}</span>
+  <span class="text-gray-600 text-[10px]">{game.genre_name}</span>
+</div>

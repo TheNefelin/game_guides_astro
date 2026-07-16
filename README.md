@@ -16,8 +16,10 @@ npm install -g pnpm
 - [Astro](https://docs.astro.build/en/install-and-setup)
 - [DaisyUI + Tailwind](https://daisyui.com/docs/install/astro)
 - [Font Awesome](https://fontawesome.com)
+- [SwiperJS](https://swiperjs.com)
 ```sh
 pnpm add @fortawesome/fontawesome-free
+pnpm add swiper
 ```
 
 ---

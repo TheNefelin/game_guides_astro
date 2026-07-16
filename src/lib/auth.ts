@@ -68,7 +68,10 @@ export async function loginWithGoogle(): Promise<void> {
 
           if (!res.ok) {
             const err = await res.json();
-            reject(new Error(err.detail || err.error || 'Error al autenticar'));
+            const detail = Array.isArray(err.detail)
+              ? err.detail.map((e: { msg: string }) => e.msg).join(', ')
+              : err.detail;
+            reject(new Error(detail || err.error || 'Error al autenticar'));
             return;
           }
 
