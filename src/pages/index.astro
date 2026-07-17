@@ -3,19 +3,24 @@ import Layout from '@/layouts/Layout.astro';
 import Hero from '@/components/Hero/Hero.astro';
 import GameSlider from '@/components/GameSlider/GameSlider.astro';
 
-const item = {
-  name: "Test Game",
-  slug: "test-game",
-  cover_url: "https://res.cloudinary.com/dsvkbe0mc/image/upload/v1780011279/news/x0ik8ouoiwbquszawtgp.webp",
-  genre_name: "RPG",
-};
+let games: { name: string; slug: string; cover_url: string; genre_name: string }[] = [];
 
-const games = Array.from({ length: 10 }, (_, i) => ({
-  name: i === 0 ? "Working Game" : `${item.name} #${i}`,
-  slug: i === 0 ? "working-game" : `${item.slug}-${i}`,
-  cover_url: item.cover_url,
-  genre_name: i === 0 ? "Action" : item.genre_name,
-}));
+try {
+  const res = await fetch(`${Astro.url.origin}/api/games?page=1&limit=10`);
+  if (res.ok) {
+    const data = await res.json();
+    if (data?.items) {
+      games = data.items.map((g: any) => ({
+        name: g.name,
+        slug: g.slug,
+        cover_url: g.cover_url ?? '',
+        genre_name: g.genres?.[0]?.name ?? '',
+      }));
+    }
+  }
+} catch (err) {
+  console.error('Error fetching games:', err);
+}
 ---
 
 <Layout 
