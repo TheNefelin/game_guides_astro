@@ -1,14 +1,29 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Hero from '@/components/Hero/Hero.astro';
+import GameSlider from '@/components/GameSlider/GameSlider.astro';
+
+const item = {
+  name: "Test Game",
+  slug: "test-game",
+  cover_url: "https://res.cloudinary.com/dsvkbe0mc/image/upload/v1780011279/news/x0ik8ouoiwbquszawtgp.webp",
+  genre_name: "RPG",
+};
+
+const games = Array.from({ length: 10 }, (_, i) => ({
+  name: i === 0 ? "Working Game" : `${item.name} #${i}`,
+  slug: i === 0 ? "working-game" : `${item.slug}-${i}`,
+  cover_url: item.cover_url,
+  genre_name: i === 0 ? "Action" : item.genre_name,
+}));
 ---
 
 <Layout 
   title="Inicio - Game Guides" 
   description="Guías detalladas, secretos y misiones paso a paso para tus juegos favoritos.">
   
-  <section class="pt-20">
-    <Hero />
-  </section>
+  <GameSlider games={games} />
 
+  <Hero />
+  
 </Layout>
