@@ -1,9 +1,23 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+body::-webkit-scrollbar{
+  display: none !important;
+}
+
+html::-webkit-scrollbar{
+  display: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none !important; 
+}
+
 body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
+  scrollbar-width: none !important; 
 }
 
 .font-gaming {
