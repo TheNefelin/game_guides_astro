@@ -9,6 +9,8 @@ Frontend público del proyecto Game Guides desarrollado con Astro 7 + Tailwind 4
 
 ```sh
 npm install -g pnpm
+pnpm add -g pnpm 
+pnpm self-update 
 ```
 
 - **Node.js** 22.12+ (versión del proyecto)
@@ -20,6 +22,38 @@ npm install -g pnpm
 ```sh
 pnpm add @fortawesome/fontawesome-free
 pnpm add swiper
+pnpm add @astrojs/vercel
+```
+- astro.config.mjs
+```mjs
+import vercel from "@astrojs/vercel";
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel(),
+});
+```
+- Add @ for routes astro.config.mjs
+```mjs
+export default defineConfig({
+  vite: {
+    resolve: {
+      alias: {
+        '@': new URL('./src', import.meta.url).pathname,
+      },
+    },
+  },
+})
+```
+- Add @ for routes tsconfig.json (para que TypeScript reconozca el alias)
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
 ```
 
 ---
