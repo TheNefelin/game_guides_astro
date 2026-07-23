@@ -4,6 +4,7 @@ import Hero from '@/components/Hero/Hero.astro';
 import GameSlider from '@/components/GameSlider/GameSlider.astro';
 import WelcomeParallax from '@/components/WelcomeParallax/WelcomeParallax.astro';
 import FeaturedGames from '@/components/FeaturedGames/FeaturedGames.astro';
+import Stats from '@/components/Stats/Stats.astro';
 
 let games: { name: string; slug: string; cover_url: string; genre_name: string }[] = [];
 let featuredGames: any[] = [];
@@ -35,6 +36,8 @@ try {
   <GameSlider games={games} />
 
   <Hero />
+
+  <Stats />
 
   <WelcomeParallax />
 

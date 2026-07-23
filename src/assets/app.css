@@ -11,13 +11,18 @@ html::-webkit-scrollbar{
 
 html {
   scroll-behavior: smooth;
-  scrollbar-width: none !important; 
+  scrollbar-width: none !important;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-base-content) 3%, transparent) 2px, transparent 2px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-base-content) 3%, transparent) 2px, transparent 2px);
+  background-size: 60px 60px;
 }
 
 body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
-  scrollbar-width: none !important; 
+  scrollbar-width: none !important;
+  background: transparent;
 }
 
 .font-gaming {

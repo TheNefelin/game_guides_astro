@@ -1,0 +1,38 @@
+---
+const stats = [
+  { value: '6', label: 'Guías Completas', color: 'text-primary' },
+  { value: '42', label: 'Misiones', color: 'text-accent' },
+  { value: '156', label: 'Secretos', color: 'text-primary' },
+  { value: '4.8', label: 'Valoración', color: 'text-error' },
+];
+---
+
+<section class="max-w-7xl mx-auto px-4 lg:px-8 -mt-16 relative z-20">
+  <div class="glass-card rounded-2xl p-8 shadow-[0_0_15px_color-mix(in_srgb,var(--color-primary)_10%,transparent),inset_0_0_15px_color-mix(in_srgb,var(--color-primary)_3%,transparent)]">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      {stats.map((s) => (
+        <div class="stat-box relative overflow-hidden">
+          <div class="font-gaming text-3xl font-bold {s.color}">{s.value}</div>
+          <div class="text-base-content/40 text-sm mt-1">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .stat-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-primary) 60%, transparent), transparent);
+    animation: shimmer 2s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+</style>
