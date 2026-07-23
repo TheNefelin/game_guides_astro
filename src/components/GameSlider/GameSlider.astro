@@ -1,5 +1,5 @@
 ---
-import GameSliderCard from "./GameSliderCard.astro";
+import GameSliderCard from "@/components/GameSlider/GameSliderCard.astro";
 
 interface Game {
   name: string;
@@ -22,17 +22,20 @@ const { games } = Astro.props;
         <i class="fa-solid fa-bolt text-primary text-xs"></i>
         Acceso Rápido
       </span>
+
       <div class="flex gap-1">
         <button class="w-7 h-7 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-quick-prev">
           <i class="fa-solid fa-chevron-left text-xs"></i>
         </button>
+
         <button class="w-7 h-7 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-quick-next">
           <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
       </div>
     </div>
+
     <div class="swiper quickSwiper">
-      <div class="swiper-wrapper p-4">
+      <div class="swiper-wrapper px-4 pt-4 pb-0">
         {
           games.map((game) => (
             <a href={`/game/${game.slug}`} class="swiper-slide group">
