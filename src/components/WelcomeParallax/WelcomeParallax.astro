@@ -1,0 +1,33 @@
+---
+import TagPill from '@/components/TagPill.astro';
+const sinGuia = '/images/sin_guia.gif';
+---
+
+<section
+  class="relative bg-cover bg-center bg-scroll md:bg-fixed"
+  style={`background-image: url("${sinGuia}")`}>
+
+  <div class="absolute inset-0 bg-linear-to-t from-error/10 from-10% via-accent/30  to-error/20"></div>
+  
+  <div class="relative z-30 w-full text-center mx-auto px-8 py-32">
+    <TagPill text="Game Guides" />
+
+    <h2 class="font-gaming text-3xl md:text-5xl font-bold text-white mb-4">
+      Bienvenidos
+    </h2>
+
+    <p class="text-white text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+      Revive tus juegos favoritos con nuestras guías
+    </p>
+  </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 lg:px-8 -mt-8 relative z-20">
+  <div class="glass-card rounded-2xl p-8 md:p-12 text-center">
+    <p class="text-base-content/80 max-w-lg mx-auto">
+      Esta sitio nació después de muchas veces abrir Chrono Cross, ver mi partida guardada… y no tener ni idea de qué estaba haciendo. Así que decidí crear un espacio para registrar mis aventuras y no volver a perder el avance de la historia (otra vez 😅).
+    </p>
+  </div>
+</section>
+
+<br>
