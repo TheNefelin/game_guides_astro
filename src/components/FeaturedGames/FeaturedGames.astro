@@ -1,0 +1,97 @@
+---
+import FeaturedGameCard from './FeaturedGameCard.astro';
+import TagPill from '@/components/TagPill.astro';
+
+interface Game {
+  name: string;
+  slug: string;
+  cover_url: string;
+  description?: string;
+  rating?: number;
+  platforms?: { id: number; name: string }[];
+  genres?: { id: number; name: string }[];
+}
+
+interface Props {
+  games: Game[];
+}
+
+const { games } = Astro.props;
+---
+
+<section class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
+  <div class="flex items-end justify-between mb-10">
+    <div>
+      <div class="mb-3">
+        <TagPill text="Destacados" />
+      </div>
+      <h2 class="font-gaming text-2xl md:text-3xl font-bold text-base-content">Juegos Destacados</h2>
+    </div>
+    <div class="hidden sm:flex gap-2">
+      <button class="w-7 h-7 md:w-9 md:h-9 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-featured-prev">
+        <i class="fa-solid fa-arrow-left text-xs md:text-sm"></i>
+      </button>
+      <button class="w-7 h-7 md:w-9 md:h-9 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-featured-next">
+        <i class="fa-solid fa-arrow-right text-xs md:text-sm"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="swiper featuredSwiper">
+    <div class="swiper-wrapper">
+      {games.map((game, i) => (
+        <div class="swiper-slide">
+          <FeaturedGameCard game={game} index={i} />
+        </div>
+      ))}
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+</section>
+
+<style is:inline>
+  .swiper {
+    padding: 0.5rem 0 2.5rem;
+  }
+  .swiper-slide {
+    height: auto;
+  }
+  .swiper-pagination-bullet {
+    background: color-mix(in srgb, var(--color-neutral-content) 40%, transparent);
+    opacity: 1;
+  }
+  .swiper-pagination-bullet-active {
+    background: var(--color-primary);
+    width: 24px;
+    border-radius: 4px;
+  }
+</style>
+
+<script>
+  import Swiper from 'swiper';
+  import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+  import 'swiper/css';
+  import 'swiper/css/navigation';
+  import 'swiper/css/pagination';
+
+  new Swiper('.featuredSwiper', {
+    modules: [Navigation, Pagination, Autoplay],
+    slidesPerView: 1.5,
+    spaceBetween: 16,
+    centeredSlides: true,
+    loop: true,
+    grabCursor: true,
+    autoplay: { delay: 4000, disableOnInteraction: false },
+    pagination: { el: '.swiper-pagination', clickable: true },
+    navigation: {
+      nextEl: '.swiper-featured-next',
+      prevEl: '.swiper-featured-prev',
+    },
+    breakpoints: {
+      480: { slidesPerView: 2, spaceBetween: 16, centeredSlides: false },
+      640: { slidesPerView: 2.5, spaceBetween: 20, centeredSlides: false },
+      768: { slidesPerView: 3, spaceBetween: 24, centeredSlides: false },
+      1024: { slidesPerView: 4, spaceBetween: 24, centeredSlides: false },
+    },
+  });
+</script>

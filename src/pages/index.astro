@@ -3,12 +3,14 @@ import Layout from '@/layouts/Layout.astro';
 import Hero from '@/components/Hero/Hero.astro';
 import GameSlider from '@/components/GameSlider/GameSlider.astro';
 import WelcomeParallax from '@/components/WelcomeParallax/WelcomeParallax.astro';
+import FeaturedGames from '@/components/FeaturedGames/FeaturedGames.astro';
 
 let games: { name: string; slug: string; cover_url: string; genre_name: string }[] = [];
+let featuredGames: any[] = [];
 
 try {
   const res = await fetch(`${Astro.url.origin}/api/games?page=1&limit=10`);
- 
+
   if (res.ok) {
     const data = await res.json();
     if (data?.items) {
@@ -18,6 +20,7 @@ try {
         cover_url: g.cover_url ?? '',
         genre_name: g.genres?.[0]?.name ?? '',
       }));
+      featuredGames = data.items;
     }
   }
 } catch (err) {
@@ -34,5 +37,7 @@ try {
   <Hero />
 
   <WelcomeParallax />
+
+  <FeaturedGames games={featuredGames} />
 
 </Layout>

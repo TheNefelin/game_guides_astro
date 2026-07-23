@@ -1,0 +1,56 @@
+---
+import TagPill from '@/components/TagPill.astro';
+
+interface Game {
+  name: string;
+  slug: string;
+  cover_url: string;
+  description?: string;
+  rating?: number;
+  platforms?: { id: number; name: string }[];
+  genres?: { id: number; name: string }[];
+}
+
+interface Props {
+  game: Game;
+  index: number;
+}
+
+const { game, index } = Astro.props;
+
+const icons = ['fa-dragon', 'fa-skull'];
+const icon = icons[index % icons.length];
+
+const stars: string[] = (() => {
+  if (!game.rating) return ['fa-regular fa-star', 'fa-regular fa-star', 'fa-regular fa-star', 'fa-regular fa-star', 'fa-regular fa-star'];
+  const filled = Math.round(game.rating / 2);
+  return Array.from({ length: 5 }, (_, i) => i < filled ? 'fa-solid fa-star' : 'fa-regular fa-star');
+})();
+
+const platformLabel = game.platforms?.map(p => p.name).join(', ') ?? '';
+const genreName = game.genres?.[0]?.name ?? 'Juego';
+---
+
+<a href={`/game/${game.slug}`} class="relative overflow-hidden rounded-2xl group cursor-pointer block transition-all duration-500 ease-out hover:scale-[1.02]">
+  <div class="aspect-4/5 rounded-2xl bg-linear-to-br from-error/20 to-accent/20 border border-error/10 flex flex-col items-center justify-center p-6">
+    <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-error/15 flex items-center justify-center mb-4">
+      <i class={`fa-solid ${icon} text-error text-xl md:text-2xl`}></i>
+    </div>
+
+    <span class="font-gaming h-10 text-base-content font-bold text-sm md:text-lg text-center leading-tight">{game.name}</span>
+
+    <span class="text-base-content/40 text-[10px] md:text-xs mt-2">{platformLabel}{platformLabel && genreName ? ' • ' : ''}{genreName}</span>
+
+    <div class="mt-3 md:mt-4 flex gap-0.5 md:gap-1 bg-base-100/40 rounded-md px-2 py-1">
+      {stars.map((s) => <i class={`${s} text-yellow-400 text-[10px] md:text-xs`}></i>)}
+    </div>
+  </div>
+
+  <div class="absolute inset-0 bg-linear-to-t from-base-100/95 via-base-100/40 to-transparent backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none rounded-2xl"></div>
+  
+  <div class="absolute bottom-0 left-0 right-0 p-6 translate-y-5 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-400 ease-out pointer-events-none">
+    <TagPill text={genreName} />
+    <h3 class="text-base-content font-bold text-sm md:text-lg">{game.name}</h3>
+    <p class="text-base-content/60 text-xs md:text-sm mt-1 leading-relaxed line-clamp-2">{game.description ?? 'Guía completa con secretos y finales'}</p>
+  </div>
+</a>
