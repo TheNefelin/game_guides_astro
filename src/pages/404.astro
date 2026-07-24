@@ -1,0 +1,24 @@
+---
+import Layout from '@/layouts/Layout.astro';
+---
+
+<Layout title="404 - Página no encontrada" description="La página que buscas no existe.">
+  <section class="flex-1 flex items-center justify-center p-4 h-full">
+
+    <div class="glass-card max-w-lg w-full rounded-2xl p-4 grid text-center gap-4">
+      <div class="font-gaming font-bold text-accent text-4xl neon-text animate-fade-in animate-duration-slow">404</div>
+
+      <h1 class="font-bold text-base-content text-2xl">Página no encontrada</h1>
+
+      <p class="text-base-content/50 leading-relaxed">
+        La página que buscas no existe, fue movida o el enlace es incorrecto.
+      </p>
+
+      <a href="/" class="inline-flex items-center justify-center gap-4 text-error font-bold">
+        <i class="fa-solid fa-arrow-left"></i>
+        Volver al inicio
+      </a>
+    </div>
+
+  </section>
+</Layout>
