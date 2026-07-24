@@ -1,0 +1,16 @@
+---
+interface Props {
+  rating: number | null;
+}
+
+const { rating } = Astro.props;
+const filled = rating ? Math.round(rating / 2) : 0;
+---
+
+<span class="inline-flex items-center gap-0.5 bg-base-100/90 rounded-md px-2 py-1">
+  {
+    Array.from({ length: 5 }, (_, i) => (
+      <i class={`fa-${i < filled ? 'solid' : 'regular'} fa-star text-yellow-400 text-xs`}></i>
+    ))
+  }
+</span>

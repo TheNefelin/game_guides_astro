@@ -2,6 +2,8 @@
 import Layout from '@/layouts/Layout.astro';
 import { getGameBySlug } from '@/services/games';
 import Toast from '@/components/toast.astro';
+import TagPill from '@/components/TagPill.astro';
+import Stars from '@/components/Stars.astro';
 
 const { slug } = Astro.params;
 const [game, error] = await getGameBySlug(slug!, Astro.url.origin);
@@ -11,7 +13,6 @@ if (!game) {
 }
 
 const bgImage = 'https://res.cloudinary.com/dsvkbe0mc/image/upload/v1770860243/news/ruatveggaye123paqwbv.webp';
-const stars = game.rating ? Math.round(game.rating / 2) : 0;
 ---
 
 <Layout title={`${game.name} - Game Guide`} description={game.description ?? undefined}>
@@ -21,7 +22,7 @@ const stars = game.rating ? Math.round(game.rating / 2) : 0;
 
   <!-- Hero -->
   <section class="relative min-h-[50vh] md:min-h-[60vh] flex items-end pt-16 bg-cover bg-center bg-fixed" style={`background-image: url('${bgImage}')`}>
-    <div class="absolute inset-0 bg-linear-to-t from-base-100 via-base-100/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-linear-to-t from-base-100 via-base-100/20 to-transparent"></div>
     <div class="max-w-7xl mx-auto px-4 lg:px-8 w-full relative z-10 pb-8 md:pb-12">
       <div class="flex flex-col md:flex-row md:items-end gap-6">
         <div class="w-28 h-28 md:w-36 md:h-36 rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/20 shrink-0 bg-base-300">
@@ -34,14 +35,10 @@ const stars = game.rating ? Math.round(game.rating / 2) : 0;
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-2 flex-wrap">
             {
-              game.platforms.map(p => (
-                <span class="tag-pill text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-1">{p.name}</span>
-              ))
+              game.platforms.map(p => <TagPill text={p.name} />)
             }
             {
-              game.genres.map(g => (
-                <span class="tag-pill text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-1">{g.name}</span>
-              ))
+              game.genres.map(g => <TagPill text={g.name} />)
             }
           </div>
           <h1 class="font-gaming text-3xl md:text-5xl font-black text-base-content neon-text">{game.name}</h1>
@@ -51,15 +48,7 @@ const stars = game.rating ? Math.round(game.rating / 2) : 0;
                 <span><i class="fa-solid fa-calendar mr-1"></i> {game.release_year}</span>
               )
             }
-            {
-              stars > 0 && (
-                <span class="flex gap-0.5">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <i class={`fa-solid fa-star text-xs ${i < stars ? 'text-yellow-400' : 'text-base-content/10'}`}></i>
-                  ))}
-                </span>
-              )
-            }
+            <Stars rating={game.rating} />
           </div>
         </div>
       </div>
@@ -206,10 +195,10 @@ const stars = game.rating ? Math.round(game.rating / 2) : 0;
 
 <script>
   const doc = document!;
-  doc.querySelectorAll('.tab-btn').forEach(btn => {
+  doc.querySelectorAll<HTMLElement>('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      doc.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      doc.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      doc.querySelectorAll<HTMLElement>('.tab-btn').forEach(b => b.classList.remove('active'));
+      doc.querySelectorAll<HTMLElement>('.tab-content').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
       doc.getElementById('tab-' + btn.dataset.tab)?.classList.add('active');
     });

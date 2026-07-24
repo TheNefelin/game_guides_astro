@@ -1,6 +1,7 @@
 ---
 import type { Game } from '@/types/game';
 import TagPill from '@/components/TagPill.astro';
+import Stars from '@/components/Stars.astro';
 
 interface Props {
   game: Game;
@@ -11,12 +12,6 @@ const { game, index } = Astro.props;
 
 const icons = ['fa-dragon', 'fa-skull'];
 const icon = icons[index % icons.length];
-
-const stars: string[] = (() => {
-  if (!game.rating) return ['fa-regular fa-star', 'fa-regular fa-star', 'fa-regular fa-star', 'fa-regular fa-star', 'fa-regular fa-star'];
-  const filled = Math.round(game.rating / 2);
-  return Array.from({ length: 5 }, (_, i) => i < filled ? 'fa-solid fa-star' : 'fa-regular fa-star');
-})();
 
 const platformLabel = game.platforms?.map(p => p.name).join(', ') ?? '';
 const genreName = game.genres?.[0]?.name ?? 'Juego';
@@ -32,8 +27,8 @@ const genreName = game.genres?.[0]?.name ?? 'Juego';
 
     <span class="text-base-content/40 text-[10px] md:text-xs mt-2">{platformLabel}{platformLabel && genreName ? ' • ' : ''}{genreName}</span>
 
-    <div class="mt-3 md:mt-4 flex gap-0.5 md:gap-1 bg-base-100/40 rounded-md px-2 py-1">
-      {stars.map((s) => <i class={`${s} text-yellow-400 text-[10px] md:text-xs`}></i>)}
+    <div class="mt-3 md:mt-4">
+      <Stars rating={game.rating} />
     </div>
   </div>
 
