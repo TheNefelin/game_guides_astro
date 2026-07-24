@@ -1,26 +1,14 @@
 ---
-import type { Game } from '@/types/game';
+import { getGames } from '@/services/games';
 import Layout from '@/layouts/Layout.astro';
 import Hero from '@/components/Hero/Hero.astro';
 import GameSlider from '@/components/GameSlider/GameSlider.astro';
 import WelcomeParallax from '@/components/WelcomeParallax/WelcomeParallax.astro';
 import FeaturedGames from '@/components/FeaturedGames/FeaturedGames.astro';
 import Stats from '@/components/Stats/Stats.astro';
+import Toast from '@/components/toast.astro';
 
-let games: Game[] = [];
-
-try {
-  const res = await fetch(`${Astro.url.origin}/api/games?page=1&limit=10`);
-
-  if (res.ok) {
-    const data = await res.json();
-    if (data?.items) {
-      games = data.items;
-    }
-  }
-} catch (err) {
-  console.error('Error fetching games:', err);
-}
+const [games, error] = await getGames(Astro.url.origin);
 ---
 
 <Layout 
@@ -37,4 +25,7 @@ try {
 
   <FeaturedGames games={games} />
 
+  {
+    error && <Toast message={error} type="error" />
+  }
 </Layout>

@@ -1,15 +1,42 @@
-<div id="toast-container" class="toast toast-end z-10 hidden">
-  <div id="toast-alert"
-       class="flex items-center gap-3 px-5 py-3 rounded-2xl backdrop-blur-md border bg-linear-to-r from-error/20 to-error/10 border-error shadow-lg shadow-error/30 min-w-64">
-    <i id="toast-icon" class="fa-solid fa-circle-exclamation text-error text-lg"></i>
-    <span id="toast-message" class="text-white text-sm font-medium flex-1">Error Message</span>
-    <button id="toast-close" class="text-white/40 hover:text-white/70 transition-colors text-lg leading-none">&times;</button>
-  </div>
-</div>
+---
+export type ToastType = 'error' | 'success' | 'warning' | 'info';
 
-<!-- Tailwind scanner anchor
-from-error/20 to-error/10 border-error shadow-error/30 text-error fa-circle-exclamation
-from-success/20 to-success/10 border-success shadow-success/30 text-success fa-circle-check
-from-warning/20 to-warning/10 border-warning shadow-warning/30 text-warning fa-triangle-exclamation
-from-info/20 to-info/10 border-info shadow-info/30 text-info fa-circle-info
--->
+export interface Props {
+  message?: string;
+  type?: ToastType;
+}
+
+const { message, type = 'error' } = Astro.props;
+
+const ssrConfig: Record<ToastType, { alert: string; icon: string }> = {
+  error: {
+    alert: 'flex items-center gap-3 px-5 py-3 rounded-2xl border bg-linear-to-r from-error/40 to-error/30 border-error shadow-lg shadow-error/30',
+    icon: 'fa-solid fa-circle-exclamation text-error text-lg',
+  },
+  success: {
+    alert: 'flex items-center gap-3 px-5 py-3 rounded-2xl border bg-linear-to-r from-success/40 to-success/30 border-success shadow-lg shadow-success/30',
+    icon: 'fa-solid fa-circle-check text-success text-lg',
+  },
+  warning: {
+    alert: 'flex items-center gap-3 px-5 py-3 rounded-2xl border bg-linear-to-r from-warning/40 to-warning/30 border-warning shadow-lg shadow-warning/30',
+    icon: 'fa-solid fa-triangle-exclamation text-warning text-lg',
+  },
+  info: {
+    alert: 'flex items-center gap-3 px-5 py-3 rounded-2xl border bg-linear-to-r from-info/40 to-info/30 border-info shadow-lg shadow-info/30',
+    icon: 'fa-solid fa-circle-info text-info text-lg',
+  },
+};
+
+---
+
+{
+  message && (
+    <div class="toast toast-center z-50 animate-fade-in animate-duration-fast backdrop-blur-md" data-toast>
+      <div class={ssrConfig[type].alert}>
+        <i class={ssrConfig[type].icon}></i>
+        <span class="text-white text-sm font-medium flex-1">{message}</span>
+        <button class="text-white/40 hover:text-white/70 transition-colors text-lg leading-none">&times;</button>
+      </div>
+    </div>
+  )
+}

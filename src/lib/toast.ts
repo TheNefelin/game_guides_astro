@@ -48,4 +48,18 @@ export function hideToast() {
 const closeBtn = document.getElementById('toast-close');
 if (closeBtn) closeBtn.addEventListener('click', hideToast);
 
+// SSR toasts — inicializar los que llegaron con data-toast
+document.querySelectorAll<HTMLElement>('[data-toast]').forEach(initToast);
+
+function initToast(container: HTMLElement) {
+  container.removeAttribute('data-toast');
+  const closeBtn = container.querySelector('button')!;
+  closeBtn.addEventListener('click', () => container.remove());
+  setTimeout(() => {
+    container.style.transition = 'opacity 0.3s ease-out';
+    container.style.opacity = '0';
+    setTimeout(() => container.remove(), 300);
+  }, 10000);
+}
+
 (window as any).showToast = showToast;
