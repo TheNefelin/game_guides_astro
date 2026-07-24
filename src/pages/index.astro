@@ -1,4 +1,5 @@
 ---
+import type { Game } from '@/types/game';
 import Layout from '@/layouts/Layout.astro';
 import Hero from '@/components/Hero/Hero.astro';
 import GameSlider from '@/components/GameSlider/GameSlider.astro';
@@ -6,8 +7,7 @@ import WelcomeParallax from '@/components/WelcomeParallax/WelcomeParallax.astro'
 import FeaturedGames from '@/components/FeaturedGames/FeaturedGames.astro';
 import Stats from '@/components/Stats/Stats.astro';
 
-let games: { name: string; slug: string; cover_url: string; genre_name: string }[] = [];
-let featuredGames: any[] = [];
+let games: Game[] = [];
 
 try {
   const res = await fetch(`${Astro.url.origin}/api/games?page=1&limit=10`);
@@ -15,13 +15,7 @@ try {
   if (res.ok) {
     const data = await res.json();
     if (data?.items) {
-      games = data.items.map((g: any) => ({
-        name: g.name,
-        slug: g.slug,
-        cover_url: g.cover_url ?? '',
-        genre_name: g.genres?.[0]?.name ?? '',
-      }));
-      featuredGames = data.items;
+      games = data.items;
     }
   }
 } catch (err) {
@@ -41,6 +35,6 @@ try {
 
   <WelcomeParallax />
 
-  <FeaturedGames games={featuredGames} />
+  <FeaturedGames games={games} />
 
 </Layout>

@@ -1,16 +1,7 @@
 ---
+import type { Game } from '@/types/game';
 import FeaturedGameCard from './FeaturedGameCard.astro';
 import TagPill from '@/components/TagPill.astro';
-
-interface Game {
-  name: string;
-  slug: string;
-  cover_url: string;
-  description?: string;
-  rating?: number;
-  platforms?: { id: number; name: string }[];
-  genres?: { id: number; name: string }[];
-}
 
 interface Props {
   games: Game[];

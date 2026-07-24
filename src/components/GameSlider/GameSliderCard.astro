@@ -1,10 +1,5 @@
 ---
-interface Game {
-  name: string;
-  slug: string;
-  cover_url: string;
-  genre_name: string;
-}
+import type { Game } from '@/types/game';
 
 interface Props {
   game: Game;
@@ -26,6 +21,6 @@ const { game } = Astro.props;
       height="96"/>
     </div>
     <span class="text-base-content text-xs font-semibold text-center leading-tight">{game.name}</span>
-    <span class="text-base-content/40 text-[10px]">{game.genre_name}</span>
+    <span class="text-base-content/40 text-[10px]">{game.genres[0]?.name ?? ''}</span>
   </div>
 </div>

@@ -1,12 +1,6 @@
 ---
+import type { Game } from '@/types/game';
 import GameSliderCard from "@/components/GameSlider/GameSliderCard.astro";
-
-interface Game {
-  name: string;
-  slug: string;
-  cover_url: string;
-  genre_name: string;
-}
 
 interface Props {
   games: Game[];
@@ -15,7 +9,7 @@ interface Props {
 const { games } = Astro.props;
 ---
 
-<section class="pt-20 relative z-10">
+<section class="pt-20 relative z-10 animate-fade-in animate-delay-300">
   <div class="max-w-7xl mx-auto px-0 sm:px-4 lg:px-4">
     <div class="flex items-center justify-between px-4">
       <span class="text-base-content/50 text-xs font-medium uppercase tracking-widest flex items-center gap-2">

@@ -19,7 +19,9 @@ pnpm self-update
 - [DaisyUI + Tailwind](https://daisyui.com/docs/install/astro)
 - [Font Awesome](https://fontawesome.com)
 - [SwiperJS](https://swiperjs.com)
+- [Tailwind Animations](https://tailwind-animations.com/)
 ```sh
+pnpm add tailwind-animations
 pnpm add @fortawesome/fontawesome-free
 pnpm add swiper
 pnpm add @astrojs/vercel

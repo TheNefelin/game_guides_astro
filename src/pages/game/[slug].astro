@@ -1,0 +1,28 @@
+---
+import type { Game } from '@/types/game';
+import Layout from '@/layouts/Layout.astro';
+
+const { slug } = Astro.params;
+
+let game: Game | null = null;
+
+try {
+  const res = await fetch(`${Astro.url.origin}/api/games?page=1&limit=1`);
+
+  if (res.ok) {
+    const data = await res.json();
+    game = data.items?.find((g: Game) => g.slug === slug) ?? null;
+  }
+} catch (err) {
+  console.error('Error fetching game:', err);
+}
+
+if (!game) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout title={`${game.name} - Game Guide`}>
+  <h1>{game.name}</h1>
+  <p>{game.description}</p>
+</Layout>
