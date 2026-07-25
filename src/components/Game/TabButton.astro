@@ -1,0 +1,23 @@
+---
+interface Props {
+  tabId: string;
+  icon: string;
+  label: string;
+  active?: boolean;
+}
+
+const { tabId, icon, label, active = false } = Astro.props;
+---
+
+<button
+  data-tab={tabId}
+  class:list={[
+    'relative px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:text-primary hover:bg-primary/15',
+    active
+      ? 'text-primary bg-primary/15 border border-primary/30'
+      : 'text-base-content/50 border border-transparent',
+  ]}
+>
+  <i class={icon}></i>
+  {label}
+</button>

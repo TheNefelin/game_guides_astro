@@ -1,0 +1,137 @@
+---
+import type { Game } from '@/types/game';
+import TabButton from '@/components/Game/TabButton.astro';
+
+interface Props {
+  game: Game;
+  bgImage: string;
+}
+
+const { game, bgImage } = Astro.props;
+
+const tabs = [
+  { tabId: 'guide', icon: 'fa-solid fa-book-open mr-2', label: 'Juego' },
+  { tabId: 'timeline', icon: 'fa-solid fa-timeline mr-2', label: 'Guía Time Line' },
+  { tabId: 'maps', icon: 'fa-solid fa-map mr-2', label: 'Mapas' },
+  { tabId: 'characters', icon: 'fa-solid fa-users mr-2', label: 'Personajes' },
+  { tabId: 'sources', icon: 'fa-solid fa-link mr-2', label: 'Fuentes' },
+]
+---
+
+<!-- ═══════════ TAB BUTTONS ═══════════ -->
+<section class="max-w-7xl mx-auto px-4 lg:px-8 py-6">
+  <div class="glass-card rounded-xl p-2 flex flex-wrap gap-2">
+    {tabs.map((t, i) => <TabButton {...t} active={i === 0} />)}
+  </div>
+</section>
+
+<!-- ═══════════ TAB CONTENT PANELS ═══════════ -->
+<section class="max-w-7xl mx-auto px-4 lg:px-8 pb-24">
+
+  <div id="tab-guide">
+    <div class="glass-card rounded-xl p-6 md:p-8 mb-8">
+      <p class="text-base-content/60 leading-relaxed text-lg indent-8">
+        {game.description ?? 'Sin descripción disponible.'}
+      </p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-xl overflow-hidden shadow-xl border border-base-content/10">
+        <img src={bgImage} alt={`${game.name} screenshot 1`} class="w-full h-auto object-cover" />
+      </div>
+      <div class="rounded-xl overflow-hidden shadow-xl border border-base-content/10">
+        <img src={bgImage} alt={`${game.name} screenshot 2`} class="w-full h-auto object-cover" />
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-timeline" class="hidden">
+    <div class="glass-card rounded-xl p-6 md:p-8">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+        <div>
+          <h2 class="font-gaming text-2xl font-bold text-base-content">
+            <i class="fa-solid fa-timeline text-primary mr-3"></i>Guía Time Line
+          </h2>
+          <p class="text-base-content/40 text-sm mt-1">Sigue la aventura paso a paso</p>
+        </div>
+      </div>
+      <div class="text-center py-12 text-base-content/30">
+        <i class="fa-solid fa-timeline text-4xl mb-4 block"></i>
+        <p>Las entradas de la guía se cargarán próximamente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-maps" class="hidden">
+    <div class="glass-card rounded-xl p-6 md:p-8">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+        <div>
+          <h2 class="font-gaming text-2xl font-bold text-base-content">
+            <i class="fa-solid fa-map text-primary mr-3"></i>Mapas
+          </h2>
+          <p class="text-base-content/40 text-sm mt-1">Mapas y zonas del juego</p>
+        </div>
+      </div>
+      <div class="text-center py-12 text-base-content/30">
+        <i class="fa-solid fa-map text-4xl mb-4 block"></i>
+        <p>Los mapas se cargarán próximamente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-characters" class="hidden">
+    <div class="glass-card rounded-xl p-6 md:p-8">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="font-gaming text-2xl font-bold text-base-content">
+            <i class="fa-solid fa-users text-primary mr-3"></i>Personajes
+          </h2>
+          <p class="text-base-content/40 text-sm mt-1">Personajes del juego</p>
+        </div>
+      </div>
+      <div class="text-center py-12 text-base-content/30">
+        <i class="fa-solid fa-users text-4xl mb-4 block"></i>
+        <p>Los personajes se cargarán próximamente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-sources" class="hidden">
+    <div class="glass-card rounded-xl p-6 md:p-8">
+      <h2 class="font-gaming text-2xl font-bold text-base-content mb-6">
+        <i class="fa-solid fa-link text-primary mr-3"></i>Fuentes y Referencias
+      </h2>
+      <div class="text-center py-12 text-base-content/30">
+        <i class="fa-solid fa-link text-4xl mb-4 block"></i>
+        <p>Las fuentes se cargarán próximamente.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  // @ts-nocheck
+  var ACTIVE = ['text-primary', 'bg-primary/15', 'border-primary/30'];
+  var INACTIVE = ['text-base-content/50', 'border-transparent'];
+  var tabBtns = document.querySelectorAll('[data-tab]');
+  var panels = document.querySelectorAll('[id^="tab-"]');
+
+  for (var i = 0; i < tabBtns.length; i++) {
+    tabBtns[i].addEventListener('click', function () {
+      var id = this.getAttribute('data-tab');
+     
+      for (var j = 0; j < tabBtns.length; j++) {
+        var b = tabBtns[j];
+        for (var c = 0; c < ACTIVE.length; c++) b.classList.remove(ACTIVE[c]);
+        for (var c = 0; c < INACTIVE.length; c++) b.classList.add(INACTIVE[c]);
+      }
+     
+      for (var k = 0; k < panels.length; k++) panels[k].classList.add('hidden');
+      for (var c = 0; c < INACTIVE.length; c++) this.classList.remove(INACTIVE[c]);
+      for (var c = 0; c < ACTIVE.length; c++) this.classList.add(ACTIVE[c]);
+      
+      var panel = document.getElementById('tab-' + id);
+      if (panel) panel.classList.remove('hidden');
+    });
+  }
+</script>
