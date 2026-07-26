@@ -1,9 +1,11 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { getGameBySlug } from '@/services/games';
 import Toast from '@/components/toast.astro';
 import GameHero from '@/components/Game/GameHero.astro';
 import GameTabs from '@/components/Game/GameTabs.astro';
+import { getGameBySlug } from '@/services/games';
+import { getScreenshots, getMaps } from '@/services/media';
+const bottomless = '/images/sin_guia.gif';
 
 const { slug } = Astro.params;
 const [game, error] = await getGameBySlug(slug!, Astro.url.origin);
@@ -12,13 +14,16 @@ if (!game) {
   return Astro.redirect('/404');
 }
 
-const bgImage = 'https://res.cloudinary.com/dsvkbe0mc/image/upload/v1770860243/news/ruatveggaye123paqwbv.webp';
+const [screenshots] = await getScreenshots(game.id, Astro.url.origin);
+const [maps] = await getMaps(game.id, Astro.url.origin);
+
+const bgImage: string = screenshots?.[0]?.image_url ?? bottomless;
 ---
 
 <Layout title={`${game.name} - Game Guide`} description={game.description ?? undefined}>
   <GameHero game={game} bgImage={bgImage} />
 
-  <GameTabs game={game} bgImage={bgImage} />
+  <GameTabs game={game} screenshots={screenshots} maps={maps} />
 
   {
     error && <Toast message={error} type="error" />

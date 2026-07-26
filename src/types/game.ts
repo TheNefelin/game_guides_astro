@@ -8,6 +8,22 @@ export interface Genre {
   name: string;
 }
 
+export interface Screenshot {
+  id: number;
+  game_id: number;
+  image_url: string;
+  alt_text: string | null;
+  created_at: string;
+}
+
+export interface Map {
+  id: number;
+  game_id: number;
+  image_url: string;
+  alt_text: string | null;
+  created_at: string;
+}
+
 export interface Game {
   id: number;
   name: string;

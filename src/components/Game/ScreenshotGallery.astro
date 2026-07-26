@@ -1,0 +1,30 @@
+---
+import type { Screenshot } from '@/types/game';
+
+interface Props {
+  screenshots: Screenshot[];
+}
+const { screenshots } = Astro.props;
+---
+
+{
+  screenshots.length > 0 ? (
+    <div class="grid md:grid-cols-2 gap-6">
+      {screenshots.map((s) => (
+        <div class="rounded-xl overflow-hidden shadow-xl border border-white/5">
+          <img
+            src={s.image_url}
+            alt={s.alt_text ?? 'background image'}
+            class="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div class="text-center py-12 text-base-content/30">
+      <i class="fa-solid fa-image text-4xl mb-4 block"></i>
+      <p>No hay capturas disponibles.</p>
+    </div>
+  )
+}

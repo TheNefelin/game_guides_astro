@@ -1,0 +1,37 @@
+---
+import type { Map } from '@/types/game';
+
+interface Props {
+  maps: Map[];
+}
+const { maps } = Astro.props;
+---
+
+{
+  maps.length > 0 ? (
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {maps.map((m) => (
+        <div class="glass-card rounded-xl p-4">
+          {m.alt_text && (
+            <h3 class="font-gaming text-lg font-bold text-base-content mb-3">
+              {m.alt_text}
+            </h3>
+          )}
+          <div class="rounded-lg overflow-hidden border border-base-content/10 shadow-lg">
+            <img
+              src={m.image_url}
+              alt={m.alt_text ?? ''}
+              class="w-full h-auto object-contain"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div class="text-center py-12 text-base-content/30">
+      <i class="fa-solid fa-map text-4xl mb-4 block"></i>
+      <p>No hay mapas disponibles.</p>
+    </div>
+  )
+}

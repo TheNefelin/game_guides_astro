@@ -1,13 +1,16 @@
 ---
-import type { Game } from '@/types/game';
+import type { Game, Screenshot, Map } from '@/types/game';
 import TabButton from '@/components/Game/TabButton.astro';
+import ScreenshotGallery from '@/components/Game/ScreenshotGallery.astro';
+import MapsGallery from '@/components/Game/MapsGallery.astro';
 
 interface Props {
   game: Game;
-  bgImage: string;
+  screenshots: Screenshot[];
+  maps: Map[];
 }
 
-const { game, bgImage } = Astro.props;
+const { game, screenshots, maps } = Astro.props;
 
 const tabs = [
   { tabId: 'guide', icon: 'fa-solid fa-book-open mr-2', label: 'Juego' },
@@ -34,14 +37,7 @@ const tabs = [
         {game.description ?? 'Sin descripción disponible.'}
       </p>
     </div>
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="rounded-xl overflow-hidden shadow-xl border border-base-content/10">
-        <img src={bgImage} alt={`${game.name} screenshot 1`} class="w-full h-auto object-cover" />
-      </div>
-      <div class="rounded-xl overflow-hidden shadow-xl border border-base-content/10">
-        <img src={bgImage} alt={`${game.name} screenshot 2`} class="w-full h-auto object-cover" />
-      </div>
-    </div>
+    <ScreenshotGallery screenshots={screenshots} />
   </div>
 
   <div id="tab-timeline" class="hidden">
@@ -71,10 +67,7 @@ const tabs = [
           <p class="text-base-content/40 text-sm mt-1">Mapas y zonas del juego</p>
         </div>
       </div>
-      <div class="text-center py-12 text-base-content/30">
-        <i class="fa-solid fa-map text-4xl mb-4 block"></i>
-        <p>Los mapas se cargarán próximamente.</p>
-      </div>
+      <MapsGallery maps={maps} />
     </div>
   </div>
 
