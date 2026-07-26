@@ -11,10 +11,14 @@ const { screenshots } = Astro.props;
   screenshots.length > 0 ? (
     <div class="grid md:grid-cols-2 gap-6">
       {screenshots.map((s) => (
-        <div class="rounded-xl overflow-hidden shadow-xl border border-white/5">
+        <div
+          data-url={s.image_url}
+          data-alt={s.alt_text ?? ''}
+          class="rounded-xl overflow-hidden shadow-xl border border-white/5 cursor-pointer"
+        >
           <img
             src={s.image_url}
-            alt={s.alt_text ?? 'background image'}
+            alt={s.alt_text ?? ''}
             class="w-full h-auto object-cover"
             loading="lazy"
           />
@@ -28,3 +32,17 @@ const { screenshots } = Astro.props;
     </div>
   )
 }
+
+<script>
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-url]');
+    if (!el) return;
+    const url = el.getAttribute('data-url');
+    const alt = el.getAttribute('data-alt');
+    if (url) {
+      const w = window as Window & { modalImageOpen: (url: string, alt?: string) => void };
+      w.modalImageOpen(url, alt ?? undefined);
+    }
+  });
+</script>
+

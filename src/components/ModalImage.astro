@@ -1,0 +1,29 @@
+<dialog id="modal-image" class="modal bg-my-dark/90">
+  <div class="modal-box p-0 max-w-5xl relative">
+    <img
+      id="modal-image-src"
+      src=""
+      alt=""
+      class="w-full h-auto object-contain"
+    />
+    <form method="dialog">
+      <button class="absolute top-2 right-2 btn btn-sm btn-circle bg-my-pink text-my-light hover:bg-my-pink/90">
+        ✕
+      </button>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  const modal = document.querySelector<HTMLDialogElement>('#modal-image');
+  const img = document.querySelector<HTMLImageElement>('#modal-image-src');
+
+  if (!modal || !img) throw new Error('ModalImage: elementos no encontrados');
+
+  const w = window as Window & { modalImageOpen: (url: string, alt?: string) => void };
+  w.modalImageOpen = (url, alt) => {
+    img.src = url;
+    img.alt = alt ?? '';
+    modal.showModal();
+  };
+</script>
