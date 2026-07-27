@@ -38,4 +38,6 @@ export interface Game {
   updated_at: string;
   platforms: Platform[];
   genres: Genre[];
+  screenshots: Screenshot[];
+  maps: Map[];
 }
