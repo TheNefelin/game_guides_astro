@@ -9,7 +9,7 @@ const { maps } = Astro.props;
 
 {
   maps.length > 0 ? (
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 gap-6">
       {maps.map((m) => (
         <div class="glass-card rounded-xl p-4">
           {m.alt_text && (

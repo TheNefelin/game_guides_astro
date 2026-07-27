@@ -20,10 +20,17 @@
 
   if (!modal || !img) throw new Error('ModalImage: elementos no encontrados');
 
-  const w = window as Window & { modalImageOpen: (url: string, alt?: string) => void };
-  w.modalImageOpen = (url, alt) => {
-    img.src = url;
-    img.alt = alt ?? '';
-    modal.showModal();
-  };
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-modal]');
+    if (!trigger) return;
+
+    const url = trigger.getAttribute('data-modal');
+    const alt = trigger.getAttribute('data-modal-alt');
+    
+    if (url) {
+      img.src = url;
+      img.alt = alt ?? '';
+      modal.showModal();
+    }
+  });
 </script>
