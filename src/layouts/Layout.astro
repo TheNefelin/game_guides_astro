@@ -37,7 +37,7 @@ const {
 	<body class="flex flex-col min-h-screen">
 		<Navbar />
 
-		<main class="flex-1">
+		<main class="flex-1 animate-fade-in">
 			<slot />
 		</main>
 
@@ -66,3 +66,46 @@ const {
 		height: 100%;
 	}
 </style>
+
+<script>
+  const main = document.querySelector('main');
+  const FADE_OUT_MS = 600;
+  let transitioning = false;
+
+  function isInternalNavigation(href: string | null): boolean {
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+      return false;
+    }
+    try {
+      return new URL(href, window.location.origin).origin === window.location.origin;
+    } catch {
+      return false;
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    if (transitioning) {
+      e.preventDefault();
+      return;
+    }
+
+    const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a');
+    if (!anchor) return;
+
+    const href = anchor.getAttribute('href');
+    if (!isInternalNavigation(href)) return;
+    if (anchor.target && anchor.target !== '_self') return;
+    if (anchor.hasAttribute('download')) return;
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    e.preventDefault();
+    transitioning = true;
+
+    main?.classList.remove('animate-fade-in');
+    main?.classList.add('animate-fade-out');
+
+    window.setTimeout(() => {
+      window.location.href = anchor.href;
+    }, FADE_OUT_MS);
+  });
+</script>
