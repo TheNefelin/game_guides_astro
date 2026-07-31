@@ -3,6 +3,8 @@ import type { Game, Screenshot, Map } from '@/types/game';
 import TabButton from '@/components/Game/TabButton.astro';
 import ScreenshotGallery from '@/components/Game/ScreenshotGallery.astro';
 import MapsGallery from '@/components/Game/MapsGallery.astro';
+import SourcesList from '@/components/Game/SourcesList.astro';
+import CharactersList from '@/components/Game/CharactersList.astro';
 
 interface Props {
   game: Game;
@@ -15,7 +17,7 @@ const { game, screenshots, maps } = Astro.props;
 const tabs = [
   { tabId: 'guide', icon: 'fa-solid fa-book-open mr-2', label: 'Juego' },
   { tabId: 'timeline', icon: 'fa-solid fa-timeline mr-2', label: 'Guía Time Line' },
-  { tabId: 'maps', icon: 'fa-solid fa-map mr-2', label: 'Mapas' },
+  { tabId: 'maps', icon: 'fa-solid fa-map mr-2', label: 'Mapas / Equipo' },
   { tabId: 'characters', icon: 'fa-solid fa-users mr-2', label: 'Personajes' },
   { tabId: 'sources', icon: 'fa-solid fa-link mr-2', label: 'Fuentes' },
 ]
@@ -24,7 +26,7 @@ const tabs = [
 <!-- ═══════════ TAB BUTTONS ═══════════ -->
 <section class="max-w-7xl mx-auto px-4 lg:px-8 py-6">
   <div class="glass-card rounded-xl p-2 flex flex-wrap gap-2">
-    {tabs.map((t, i) => <TabButton {...t} active={i === 0} />)}
+    { tabs.map((t, i) => <TabButton {...t} active={i === 0} />) }
   </div>
 </section>
 
@@ -72,20 +74,7 @@ const tabs = [
   </div>
 
   <div id="tab-characters" class="hidden">
-    <div class="glass-card rounded-xl p-6 md:p-8">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h2 class="font-gaming text-2xl font-bold text-base-content">
-            <i class="fa-solid fa-users text-primary mr-3"></i>Personajes
-          </h2>
-          <p class="text-base-content/40 text-sm mt-1">Personajes del juego</p>
-        </div>
-      </div>
-      <div class="text-center py-12 text-base-content/30">
-        <i class="fa-solid fa-users text-4xl mb-4 block"></i>
-        <p>Los personajes se cargarán próximamente.</p>
-      </div>
-    </div>
+    <CharactersList characters={game.characters} />
   </div>
 
   <div id="tab-sources" class="hidden">
@@ -93,10 +82,7 @@ const tabs = [
       <h2 class="font-gaming text-2xl font-bold text-base-content mb-6">
         <i class="fa-solid fa-link text-primary mr-3"></i>Fuentes y Referencias
       </h2>
-      <div class="text-center py-12 text-base-content/30">
-        <i class="fa-solid fa-link text-4xl mb-4 block"></i>
-        <p>Las fuentes se cargarán próximamente.</p>
-      </div>
+      <SourcesList sources={game.sources} />
     </div>
   </div>
 

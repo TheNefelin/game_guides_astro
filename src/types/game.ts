@@ -24,6 +24,29 @@ export interface Map {
   created_at: string;
 }
 
+export interface Source {
+  id: number;
+  game_id: number;
+  name: string;
+  url: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Character {
+  id: number;
+  game_id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  is_playable: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Game {
   id: number;
   name: string;
@@ -40,4 +63,6 @@ export interface Game {
   genres: Genre[];
   screenshots: Screenshot[];
   maps: Map[];
+  sources: Source[];
+  characters: Character[];
 }

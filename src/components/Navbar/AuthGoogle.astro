@@ -1,5 +1,6 @@
 ---
 import googleIcon from '@/assets/images/google.svg';
+import mewtwoFallback from '@/assets/images/mewtwo.png';
 ---
 
 <div class="flex items-center">
@@ -13,7 +14,8 @@ import googleIcon from '@/assets/images/google.svg';
 
   <div id="auth-user" class="hidden dropdown dropdown-end">
     <div tabindex="0" role="button" id="avatarBtn">
-      <img id="userAvatar" class="w-8 h-8 rounded-full ring-2 ring-transparent hover:ring-emerald-400 transition-all" />
+      <img id="userAvatar" class="w-8 h-8 rounded-full ring-2 ring-transparent hover:ring-emerald-400 transition-all"
+           onerror={`this.onerror=null;this.src='${mewtwoFallback.src}';`} />
     </div>
     <div tabindex="0" class="dropdown-content mt-2 w-48 rounded-xl py-2 z-50"
          style="background: rgba(15, 15, 25, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
@@ -47,7 +49,7 @@ import googleIcon from '@/assets/images/google.svg';
 
       const user = getUser();
       if (user) {
-        userAvatar.src = user.picture || '';
+        userAvatar.src = user.picture || '/assets/images/mewtwo.png';
         userName.textContent = user.name || '';
         userEmail.textContent = user.email || '';
       }

@@ -1,0 +1,77 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+const contactEmail = 'tu-email@ejemplo.com';
+
+const reasons = [
+  { value: 'colaborar', label: 'Colaborar con una guía' },
+  { value: 'reclamo', label: 'Reclamo' },
+  { value: 'sugerencia', label: 'Sugerencia' },
+  { value: 'otros', label: 'Otros' },
+];
+---
+
+<Layout title="Contacto - Game Guides" description="Contactate con Game Guides para colaborar con guías, hacer un reclamo o dejar tu sugerencia.">
+  <section class="max-w-3xl mx-auto px-4 lg:px-8 pt-32">
+    <div class="text-center mb-10">
+      <h1 class="font-gaming text-3xl md:text-4xl font-bold text-white mb-3">
+        Contacto
+      </h1>
+      <p class="text-gray-400 text-sm md:text-base">
+        ¿Colaborar con una guía, un reclamo o simplemente saludar? Escribinos.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-xl mx-auto px-4 py-8 my-8 glass-card rounded-box ">
+    <header class="px-4">
+      <h2 class="font-gaming text-lg font-bold text-base-content mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-paper-plane text-accent"></i>
+        Enviar mensaje
+      </h2>
+      <p class="text-gray-400 text-sm mb-6">Completá el formulario y se abrirá tu cliente de correo con el mensaje listo.</p>
+    </header>
+
+    <form class="grid gap-2 p-2">
+      <fieldset class="fieldset">
+        <header class="flex gap-2">
+          <i class="fa-solid fa-tags text-base-content/30 text-sm"></i>
+          <label for="name" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Motivo</label>
+        </header>
+        <select class="select w-full">
+          { reasons.map((r) => <option value={r.value}>{r.label}</option>) }
+        </select>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <header class="flex gap-2">
+          <i class="fa-solid fa-user text-base-content/30 text-sm"></i>
+          <label for="name" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Nombre</label>
+        </header>
+        <input type="text" class="input w-full" placeholder="Tu nombre" />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <header class="flex gap-2">
+          <i class="fa-solid fa-envelope text-base-content/30 text-sm"></i>
+          <label for="email" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Email</label>
+        </header>
+        <input type="text" class="input w-full" placeholder="tucorreo@ejemplo.com" />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <header class="flex gap-2">
+          <i class="fa-solid fa-envelope-open-text text-base-content/30 text-sm"></i>
+          <label for="message" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Mensaje</label>
+        </header>
+        <textarea class="textarea h-36 w-full" placeholder="En qué podemos ayudarte..."></textarea>
+      </fieldset>
+  
+      <button type="submit" class="btn btn-accent w-full text-sm">
+        <i class="fa-solid fa-paper-plane"></i>
+        Enviar mensaje
+      </button>
+    </form>
+  </section>
+</Layout>
+

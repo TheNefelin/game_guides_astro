@@ -1,0 +1,61 @@
+---
+import type { Source } from '@/types/game';
+
+interface Props {
+  sources: Source[];
+}
+const { sources } = Astro.props;
+
+const palette = [
+  { icon: 'fa-dragon', iconCls: 'text-accent group-hover:text-white', bgCls: 'border border-accent bg-accent/10 group-hover:bg-accent' },
+  { icon: 'fa-dragon', iconCls: 'text-warning group-hover:text-white', bgCls: 'border border-warning bg-warning/10 group-hover:bg-warning' },
+  { icon: 'fa-dragon', iconCls: 'text-error group-hover:text-white', bgCls: 'border border-error bg-error/10 group-hover:bg-error' },
+  { icon: 'fa-dragon', iconCls: 'text-pink-400 group-hover:text-white', bgCls: 'border border-pink-400 bg-pink-400/10 group-hover:bg-pink-400' },
+];
+
+const hostname = (url: string): string => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+};
+
+const styleFor = (name: string) => {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return palette[h % palette.length];
+};
+---
+
+{
+  sources.length > 0 ? (
+    <div class="grid sm:grid-cols-2 gap-3">
+      {sources.map((s) => {
+        const style = styleFor(s.name);
+        return (
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-3 p-3 rounded-xl bg-base-content/10 hover:bg-primary/20 border border-white/5 hover:border-primary/20 transition-all group"
+          >
+            <div class={`${style.bgCls} w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors`}>
+              <i class={`fa-solid ${style.icon} ${style.iconCls}`}></i>
+            </div>
+            <div class="min-w-0">
+              <span class="text-base-content text-sm font-semibold block truncate">{s.name}</span>
+              <p class="text-base-content/50 text-xs">{hostname(s.url)}</p>
+            </div>
+            <i class="fa-solid fa-arrow-up-right-from-square text-base-content/30 ml-auto text-xs shrink-0"></i>
+          </a>
+        );
+      })}
+    </div>
+  ) : (
+    <div class="text-center py-12 text-base-content/30">
+      <i class="fa-solid fa-link text-4xl mb-4 block"></i>
+      <p>No hay fuentes disponibles.</p>
+    </div>
+  )
+}

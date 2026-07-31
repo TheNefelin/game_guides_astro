@@ -1,0 +1,178 @@
+---
+import type { Character } from '@/types/game';
+
+interface Props {
+  characters: Character[];
+}
+const { characters } = Astro.props;
+const total = characters.length;
+---
+
+<div class="glass-card rounded-xl p-6 md:p-8">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+    <div>
+      <h2 class="font-gaming text-2xl font-bold text-base-content">
+        <i class="fa-solid fa-users text-primary mr-3"></i>Personajes
+      </h2>
+      <p class="text-base-content/40 text-sm mt-1">{total} personajes reclutables</p>
+    </div>
+    <div class="relative">
+      <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-base-content/30 text-sm"></i>
+      <input
+        type="text"
+        id="characterSearch"
+        placeholder="Buscar personaje..."
+        class="bg-base-content/10 border border-white/5 rounded-lg pl-9 pr-3 py-2 text-sm text-base-content placeholder-base-content/30 focus:outline-none focus:border-primary/50 w-44 lg:w-56"
+      />
+    </div>
+  </div>
+
+  {
+    characters.length > 0 ? (
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="characterGrid">
+        {characters.map((c) => (
+          <div
+            class="char-card bg-base-content/10 hover:bg-primary/20 border border-white/5 hover:border-primary/20 rounded-xl overflow-hidden p-4 flex items-center gap-4 transition-all cursor-pointer group"
+            data-char
+            data-id={c.id}
+            data-game-id={c.game_id}
+            data-name={c.name.toLowerCase()}
+            data-label={c.name}
+            data-sort={c.sort_order}
+            data-slug={c.slug}
+            data-description={c.description ?? ''}
+            data-img={c.image_url ?? ''}
+            data-playable={c.is_playable}
+            data-created={c.created_at}
+            data-updated={c.updated_at}
+          >
+            <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-base-300 flex items-center justify-center">
+              {c.image_url ? (
+                <img src={c.image_url} alt={c.name} class="w-full h-full object-cover" loading="lazy" />
+              ) : (
+                <i class="fa-solid fa-user text-base-content/40 text-xl"></i>
+              )}
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1">
+                <h3 class="text-base-content font-bold text-sm truncate">{c.name}</h3>
+                <span class="text-base-content/30 text-xs shrink-0">#{c.sort_order}</span>
+              </div>
+              <p class="text-base-content/50 text-xs mt-0.5 line-clamp-2">{c.description ?? 'Sin descripción.'}</p>
+            </div>
+            <i class="fa-solid fa-chevron-right text-base-content/20 group-hover:text-primary ml-auto text-xs shrink-0"></i>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-12 text-base-content/30">
+        <i class="fa-solid fa-users text-4xl mb-4 block"></i>
+        <p>No hay personajes disponibles.</p>
+      </div>
+    )
+  }
+</div>
+
+<!-- Character detail modal -->
+<dialog id="character-modal" class="modal">
+  <div class="modal-box bg-base-100 text-base-content border border-primary max-w-lg p-0 overflow-hidden">
+    <form method="dialog">
+      <button class="absolute top-3 right-3 z-10 btn btn-sm btn-circle bg-base-content/10 hover:bg-primary/20 text-base-content">
+        ✕
+      </button>
+    </form>
+    <div class="p-6">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-20 h-20 rounded-2xl overflow-hidden shrink-0 bg-base-300 flex items-center justify-center">
+          <img id="char-modal-img" src="" alt="" class="w-full h-full object-cover hidden" />
+          <i class="fa-solid fa-user text-base-content/40 text-3xl"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 id="char-modal-name" class="font-gaming text-xl font-bold text-base-content"></h3>
+            <span id="char-modal-sort" class="text-base-content/40 text-xs shrink-0"></span>
+            <span id="char-modal-playable" class="badge badge-sm badge-accent"></span>
+          </div>
+          <p id="char-modal-slug" class="text-base-content/40 text-xs mt-1"></p>
+        </div>
+      </div>
+      <p id="char-modal-description" class="text-base-content/70 text-sm leading-relaxed"></p>
+      <dl class="mt-4 pt-4 border-t border-base-content/10 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+        <div>
+          <dt class="text-base-content/40">ID</dt>
+          <dd id="char-modal-id" class="text-base-content"></dd>
+        </div>
+        <div>
+          <dt class="text-base-content/40">Game ID</dt>
+          <dd id="char-modal-game-id" class="text-base-content"></dd>
+        </div>
+        <div>
+          <dt class="text-base-content/40">Creado</dt>
+          <dd id="char-modal-created" class="text-base-content"></dd>
+        </div>
+        <div>
+          <dt class="text-base-content/40">Actualizado</dt>
+          <dd id="char-modal-updated" class="text-base-content"></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  // @ts-nocheck
+  var input = document.getElementById('characterSearch');
+  if (input) {
+    input.addEventListener('input', function () {
+      var q = this.value.toLowerCase().trim();
+      var cards = document.querySelectorAll('#characterGrid [data-char]');
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.toggle('hidden', q !== '' && cards[i].getAttribute('data-name').indexOf(q) === -1);
+      }
+    });
+  }
+
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? iso : d.toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  var modal = document.getElementById('character-modal');
+  var cards = document.querySelectorAll('#characterGrid [data-char]');
+
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('click', function () {
+      setText('char-modal-name', this.getAttribute('data-label'));
+      setText('char-modal-sort', '#' + this.getAttribute('data-sort'));
+      setText('char-modal-slug', '/' + this.getAttribute('data-slug'));
+      setText('char-modal-description', this.getAttribute('data-description') || 'Sin descripción.');
+      setText('char-modal-id', this.getAttribute('data-id'));
+      setText('char-modal-game-id', this.getAttribute('data-game-id'));
+      setText('char-modal-created', formatDate(this.getAttribute('data-created')));
+      setText('char-modal-updated', formatDate(this.getAttribute('data-updated')));
+
+      var img = document.getElementById('char-modal-img');
+      var imgUrl = this.getAttribute('data-img');
+      if (imgUrl) {
+        img.src = imgUrl;
+        img.alt = this.getAttribute('data-label');
+        img.classList.remove('hidden');
+      } else {
+        img.classList.add('hidden');
+      }
+
+      var badge = document.getElementById('char-modal-playable');
+      var playable = this.getAttribute('data-playable') === 'true';
+      badge.textContent = playable ? 'Jugable' : 'No jugable';
+      badge.className = 'badge badge-sm shrink-0 ' + (playable ? 'badge-accent' : 'badge-error');
+
+      modal.showModal();
+    });
+  }
+</script>
