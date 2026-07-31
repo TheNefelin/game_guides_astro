@@ -19,7 +19,7 @@ const [games, error] = await getGames(Astro.url.origin);
 
   <Hero />
 
-  <Stats />
+  <Stats games={games} />
 
   <WelcomeParallax />
 

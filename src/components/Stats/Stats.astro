@@ -1,9 +1,20 @@
 ---
+import type { Game } from '@/types/game';
+
+interface Props {
+  games: Game[];
+}
+
+const { games } = Astro.props;
+
+const totalGames: number = games.length;
+const average = (games.reduce((sum, game) => sum + (game.rating ?? 0), 0) / (games.length * 2)).toFixed(1);;
+
 const stats = [
-  { value: '6', label: 'Guías Completas', color: 'text-primary' },
-  { value: '42', label: 'Misiones', color: 'text-accent' },
-  { value: '156', label: 'Secretos', color: 'text-primary' },
-  { value: '4.8', label: 'Valoración', color: 'text-error' },
+  { value: totalGames, label: 'Guías Completas', color: 'text-primary' },
+  { value: average, label: 'Valoración', color: 'text-error' },
+  { value: 0, label: 'Avance', color: 'text-accent' },
+  { value: 0, label: 'Guías Terminadas', color: 'text-primary' },
 ];
 ---
 
