@@ -61,6 +61,9 @@ export interface Game {
   updated_at: string;
   platforms: Platform[];
   genres: Genre[];
+}
+
+export interface GameDetail extends Game {
   screenshots: Screenshot[];
   maps: Map[];
   sources: Source[];
