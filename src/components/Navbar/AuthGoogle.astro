@@ -18,7 +18,7 @@ import mewtwoFallback from '@/assets/images/mewtwo.png';
            onerror={`this.onerror=null;this.src='${mewtwoFallback.src}';`} />
     </div>
     <div tabindex="0" class="dropdown-content mt-2 w-48 rounded-xl py-2 z-50"
-         style="background: rgba(15, 15, 25, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
+        style="background: #15151f; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
       <div class="px-4 py-2 text-sm text-white font-medium truncate" id="userName"></div>
       <div class="px-4 py-1 text-xs text-gray-500 truncate" id="userEmail"></div>
       <hr class="my-2 border-white/5" />
@@ -28,6 +28,30 @@ import mewtwoFallback from '@/assets/images/mewtwo.png';
     </div>
   </div>
 </div>
+
+<script is:inline>
+  (function () {
+    try {
+      if (localStorage.getItem('access_token')) {
+        var login = document.getElementById('auth-login');
+        var userSection = document.getElementById('auth-user');
+        if (login) login.classList.add('hidden');
+        if (userSection) userSection.classList.remove('hidden');
+
+        var rawUser = localStorage.getItem('user');
+        var user = rawUser ? JSON.parse(rawUser) : null;
+        if (user) {
+          var avatar = document.getElementById('userAvatar');
+          if (avatar && user.picture) avatar.src = user.picture;
+          var name = document.getElementById('userName');
+          if (name) name.textContent = user.name || '';
+          var email = document.getElementById('userEmail');
+          if (email) email.textContent = user.email || '';
+        }
+      }
+    } catch (e) {}
+  })();
+</script>
 
 <script>
   import { loginWithGoogle, logout, getUser, isAuthenticated } from '@/lib/auth';

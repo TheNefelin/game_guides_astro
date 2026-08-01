@@ -81,6 +81,30 @@ const navLinks = [
   </div>
 </div>
 
+<script is:inline>
+  (function () {
+    try {
+      if (localStorage.getItem('access_token')) {
+        var login = document.getElementById('mobile-auth-login');
+        var userSection = document.getElementById('mobile-auth-user');
+        if (login) login.classList.add('hidden');
+        if (userSection) userSection.classList.remove('hidden');
+
+        var rawUser = localStorage.getItem('user');
+        var user = rawUser ? JSON.parse(rawUser) : null;
+        if (user) {
+          var avatar = document.getElementById('mobileUserAvatar');
+          if (avatar && user.picture) avatar.src = user.picture;
+          var name = document.getElementById('mobileUserName');
+          if (name) name.textContent = user.name || '';
+          var email = document.getElementById('mobileUserEmail');
+          if (email) email.textContent = user.email || '';
+        }
+      }
+    } catch (e) {}
+  })();
+</script>
+
 <script>
   import { loginWithGoogle, logout, getUser, isAuthenticated } from '@/lib/auth';
   import { showToast } from '@/lib/toast';
