@@ -5,6 +5,8 @@ Frontend público del proyecto Game Guides desarrollado con Astro 7 + Tailwind 4
 ---
 
 ## Requisitos + Dependencias
+- [Google Auth](https://console.cloud.google.com)
+
 ### Instalar pnpm
 
 ```sh
