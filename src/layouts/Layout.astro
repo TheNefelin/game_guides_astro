@@ -108,4 +108,15 @@ const {
       window.location.href = anchor.href;
     }, FADE_OUT_MS);
   });
+
+  // Al volver atrás/adelante con las flechas del navegador (bfcache),
+  // el <main> se restaura con la clase animate-fade-out (opacity 0) y el
+  // script no se re-ejecuta. pageshow con persisted=true restaura la visibilidad.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      main?.classList.remove('animate-fade-out');
+      main?.classList.add('animate-fade-in');
+      transitioning = false;
+    }
+  });
 </script>

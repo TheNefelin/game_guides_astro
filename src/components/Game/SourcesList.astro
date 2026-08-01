@@ -38,14 +38,14 @@ const styleFor = (name: string) => {
             href={s.url}
             target="_blank"
             rel="noopener noreferrer"
-            class="flex items-center gap-3 p-3 rounded-xl bg-base-content/10 hover:bg-primary/20 border border-white/5 hover:border-primary/20 transition-all group"
+            class="flex items-center gap-3 p-3 rounded-xl bg-base-content/10 hover:bg-primary/20 border border-white/5 hover:border-primary/20 transition-all group min-w-0"
           >
             <div class={`${style.bgCls} w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors`}>
               <i class={`fa-solid ${style.icon} ${style.iconCls}`}></i>
             </div>
-            <div class="min-w-0">
+            <div class="min-w-0 flex-1">
               <span class="text-base-content text-sm font-semibold block truncate">{s.name}</span>
-              <p class="text-base-content/50 text-xs">{hostname(s.url)}</p>
+              <p class="text-base-content/50 text-xs truncate">{hostname(s.url)}</p>
             </div>
             <i class="fa-solid fa-arrow-up-right-from-square text-base-content/30 ml-auto text-xs shrink-0"></i>
           </a>
