@@ -13,6 +13,7 @@ export interface Screenshot {
   game_id: number;
   image_url: string;
   alt_text: string | null;
+  sort_order: number;
   created_at: string;
 }
 
@@ -21,6 +22,7 @@ export interface Map {
   game_id: number;
   image_url: string;
   alt_text: string | null;
+  sort_order: number;
   created_at: string;
 }
 
