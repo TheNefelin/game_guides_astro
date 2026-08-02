@@ -1,5 +1,5 @@
 ---
-import type { Game, Screenshot, Map } from '@/types/game';
+import type { Screenshot, Map, GameDetail } from '@/types/game';
 import TabButton from '@/components/Game/TabButton.astro';
 import ScreenshotGallery from '@/components/Game/ScreenshotGallery.astro';
 import MapsGallery from '@/components/Game/MapsGallery.astro';
@@ -7,7 +7,7 @@ import SourcesList from '@/components/Game/SourcesList.astro';
 import CharactersList from '@/components/Game/CharactersList.astro';
 
 interface Props {
-  game: Game;
+  game: GameDetail;
   screenshots: Screenshot[];
   maps: Map[];
 }
