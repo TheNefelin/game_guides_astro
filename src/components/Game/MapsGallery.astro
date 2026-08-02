@@ -18,12 +18,19 @@ const { maps } = Astro.props;
             </h3>
           )}
           <div class="rounded-lg overflow-hidden border border-base-content/10 shadow-lg">
-            <img
-              src={m.image_url}
-              alt={m.alt_text ?? ''}
-              class="w-full h-auto object-contain"
-              loading="lazy"
-            />
+            <a
+              href={m.image_url}
+              target="_blank"
+              rel="noopener"
+              class="block cursor-pointer"
+            >
+              <img
+                src={m.image_url}
+                alt={m.alt_text ?? ''}
+                class="w-full h-auto object-contain"
+                loading="lazy"
+              />
+            </a>
           </div>
         </div>
       ))}
