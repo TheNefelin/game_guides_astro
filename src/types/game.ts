@@ -65,9 +65,43 @@ export interface Game {
   genres: Genre[];
 }
 
+export interface AdventureImage {
+  id: number;
+  adventure_id: number;
+  image_url: string;
+  alt_text: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface Adventure {
+  id: number;
+  guide_id: number;
+  description: string;
+  is_important: boolean;
+  is_optional: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  images: AdventureImage[];
+}
+
+export interface Guide {
+  id: number;
+  game_id: number;
+  title: string;
+  summary: string | null;
+  sort_order: number;
+  is_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  adventures: Adventure[];
+}
+
 export interface GameDetail extends Game {
   screenshots: Screenshot[];
   maps: Map[];
   sources: Source[];
   characters: Character[];
+  guides: Guide[];
 }

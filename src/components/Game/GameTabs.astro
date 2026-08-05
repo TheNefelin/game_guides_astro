@@ -5,6 +5,7 @@ import ScreenshotGallery from '@/components/Game/ScreenshotGallery.astro';
 import MapsGallery from '@/components/Game/MapsGallery.astro';
 import SourcesList from '@/components/Game/SourcesList.astro';
 import CharactersList from '@/components/Game/CharactersList.astro';
+import TimeLine from '@/components/Game/TimeLine.astro';
 
 interface Props {
   game: GameDetail;
@@ -43,20 +44,7 @@ const tabs = [
   </div>
 
   <div id="tab-timeline" class="hidden">
-    <div class="glass-card rounded-xl p-6 md:p-8">
-      <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
-        <div>
-          <h2 class="font-gaming text-2xl font-bold text-base-content">
-            <i class="fa-solid fa-timeline text-primary mr-3"></i>Guía Time Line
-          </h2>
-          <p class="text-base-content/40 text-sm mt-1">Sigue la aventura paso a paso</p>
-        </div>
-      </div>
-      <div class="text-center py-12 text-base-content/30">
-        <i class="fa-solid fa-timeline text-4xl mb-4 block"></i>
-        <p>Las entradas de la guía se cargarán próximamente.</p>
-      </div>
-    </div>
+    <TimeLine game={game} />
   </div>
 
   <div id="tab-maps" class="hidden">

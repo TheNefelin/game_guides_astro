@@ -1,0 +1,95 @@
+---
+import type { GameDetail } from '@/types/game';
+
+interface Props {
+  game: GameDetail;
+}
+
+const { game } = Astro.props;
+const guides = game.guides ?? [];
+const total = guides.length;
+const badgeClass = (i: number) => i % 2 === 0 ? 'border border-pink-400 bg-pink-400/60' : 'border border-warning bg-warning/60';
+const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? 'Decisión importante' : isOptional ? 'Paso opcional' : 'Paso';
+---
+
+<div class="glass-card rounded-xl p-6 md:p-8">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+    <div>
+      <h2 class="font-gaming text-2xl font-bold text-base-content">
+        <i class="fa-solid fa-timeline text-primary mr-3"></i>Guía Time Line
+      </h2>
+      <p class="text-base-content/40 text-sm mt-1">
+        Sigue la aventura paso a paso — {total} {total === 1 ? 'entrada' : 'entradas'}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-base-content/40 text-xs">
+        <i class="fa-regular fa-circle-check text-primary mr-1"></i> 0/{total}
+      </span>
+      <button class="btn btn-ghost btn-xs text-base-content/50 hover:text-primary" disabled>
+        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  {
+    total === 0 ? (
+      <div class="text-center py-12 text-base-content/30">
+        <i class="fa-solid fa-timeline text-4xl mb-4 block"></i>
+        <p>Las entradas de la guía se cargarán próximamente.</p>
+      </div>
+    ) : (
+      guides.map((guide, gi) => (
+        <div id={`G-${guide.id}`} class="collapse collapse-arrow bg-base-100/80 border border-base-content/5 mb-3 rounded-xl">
+          <input type="checkbox" />
+          <div class="collapse-title text-base md:text-lg font-medium text-base-content flex items-center gap-3 bg-accent/50 rounded-xl">
+            <span class={`w-7 h-7 rounded-full ${badgeClass(gi)} text-xs font-bold flex items-center justify-center shrink-0`}>
+              {gi + 1}
+            </span>
+            {guide.title}
+          </div>
+          <div class="collapse-content">
+            <header>
+              <div class="flex items-center gap-2 my-4 p-3 rounded-lg bg-base-content/5">
+                <input type="checkbox" class="checkbox checkbox-accent checkbox-xs border-2" />
+                <span class="text-base-content/60 text-sm">Marcar como completado</span>
+              </div>
+              <p class="whitespace-pre-wrap font-extralight my-4">{ guide.summary}</p>
+            </header>
+            <div class="space-y-4">
+              {
+                guide.adventures.map((adv) => (
+                  <div class={adv.is_important
+                    ? 'p-3 rounded-lg bg-error/80 border-l-2 border-error text-white'
+                    : 'p-3 rounded-lg bg-base-content/2 border-l-2 border-primary/30 text-base-content/70'}>
+                    <span class="text-xs font-bold uppercase">{stepLabel(adv.is_important, adv.is_optional)}</span>
+                    <p class="text-sm py-4">{adv.description}</p>
+                    <section class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {
+                        adv.images.map((img) => (
+                          <img
+                            src={img.image_url}
+                            alt={img.alt_text ?? guide.title}
+                            data-modal={img.image_url}
+                            data-modal-alt={img.alt_text ?? ''}
+                            class="w-full max-w-lg rounded-lg shadow-md cursor-pointer"
+                            loading="lazy"
+                          />
+                        ))
+                      }
+                    </section>
+                  </div>
+                ))
+              }
+            </div>
+            <div class="flex justify-end mt-4 pt-3 border-t border-base-content/5">
+              <a href={`#G-${guide.id}`} class="text-base-content/40 hover:text-primary text-xs transition-colors flex items-center gap-1">
+                <i class="fa-solid fa-arrow-up"></i> Volver arriba
+              </a>
+            </div>
+          </div>
+        </div>
+      ))
+    )
+  }
+</div>
