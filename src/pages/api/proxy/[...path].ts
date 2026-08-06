@@ -12,6 +12,15 @@ function getPath(url: URL): string {
   return url.pathname.replace('/api/proxy/', '');
 }
 
+// Headers hacia el backend: X-API-Key (origen) + reenvío del Authorization
+// entrante (JWT del usuario) cuando el cliente lo envió.
+function buildHeaders(request: Request, extra?: Record<string, string>): Record<string, string> {
+  const headers: Record<string, string> = { 'X-API-Key': API_KEY, ...extra };
+  const auth = request.headers.get('Authorization');
+  if (auth) headers['Authorization'] = auth;
+  return headers;
+}
+
 // Convierte la respuesta del backend en Response de Astro
 // - Status code se mantiene intacto (sin try/catch que lo trague)
 // - 204 No Content se devuelve sin body
@@ -25,9 +34,9 @@ async function proxyResponse(response: globalThis.Response): Promise<Response> {
 
 // GET — Obtener recursos (lista, detalle). Sin body.
 // Útil para: index, detalle, búsquedas.
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request }) => {
   const response = await fetch(`${API_URL}/${getPath(url)}${url.search}`, {
-    headers: { 'X-API-Key': API_KEY },
+    headers: buildHeaders(request),
   });
 
   return proxyResponse(response);
@@ -38,10 +47,7 @@ export const GET: APIRoute = async ({ url }) => {
 export const POST: APIRoute = async ({ url, request }) => {
   const response = await fetch(`${API_URL}/${getPath(url)}${url.search}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': API_KEY,
-    },
+    headers: buildHeaders(request, { 'Content-Type': 'application/json' }),
     body: await request.text(),
   });
 
@@ -53,10 +59,7 @@ export const POST: APIRoute = async ({ url, request }) => {
 export const PUT: APIRoute = async ({ url, request }) => {
   const response = await fetch(`${API_URL}/${getPath(url)}${url.search}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': API_KEY,
-    },
+    headers: buildHeaders(request, { 'Content-Type': 'application/json' }),
     body: await request.text(),
   });
 
@@ -66,10 +69,10 @@ export const PUT: APIRoute = async ({ url, request }) => {
 // DELETE — Eliminar recursos. Sin body.
 // Útil para: borrar game, character, source.
 // Nota: backend suele devolver 204 No Content.
-export const DELETE: APIRoute = async ({ url }) => {
+export const DELETE: APIRoute = async ({ url, request }) => {
   const response = await fetch(`${API_URL}/${getPath(url)}${url.search}`, {
     method: 'DELETE',
-    headers: { 'X-API-Key': API_KEY },
+    headers: buildHeaders(request),
   });
 
   return new Response(null, { status: response.status });

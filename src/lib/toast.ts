@@ -1,6 +1,6 @@
 export type ToastType = 'error' | 'success' | 'warning' | 'info';
 
-let hideTimer: ReturnType<typeof setTimeout> | null = null;
+const TOAST_DURATION_MS = 4000;
 
 const typeConfig: Record<ToastType, { alert: string; icon: string }> = {
   error: {
@@ -21,45 +21,67 @@ const typeConfig: Record<ToastType, { alert: string; icon: string }> = {
   },
 };
 
-export function showToast(message: string, type: ToastType = 'error') {
-  const container = document.getElementById('toast-container');
-  if (!container) return;
+function getContainer(): HTMLElement | null {
+  return document.getElementById('toast-container');
+}
 
-  const alert = document.getElementById('toast-alert')!;
-  const icon = document.getElementById('toast-icon')!;
-  const msg = document.getElementById('toast-message')!;
+export function showToast(message: string, type: ToastType = 'error') {
+  const container = getContainer();
+  if (!container) return;
+  const host = container;
+
   const config = typeConfig[type];
 
+  const toast = document.createElement('div');
+  toast.className = 'animate-fade-in animate-duration-fast backdrop-blur-md';
+
+  const alert = document.createElement('div');
   alert.className = config.alert;
-  icon.className = config.icon;
-  msg.textContent = message;
+  alert.innerHTML =
+    '<i class="' + config.icon + '"></i>' +
+    '<span class="text-white text-sm font-medium flex-1"></span>' +
+    '<button class="text-white/40 hover:text-white/70 transition-colors text-lg leading-none">&times;</button>';
 
+  alert.querySelector('span')!.textContent = message;
+
+  let hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function dismiss() {
+    if (hideTimer) clearTimeout(hideTimer);
+    toast.style.transition = 'opacity 0.3s ease-out';
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      toast.remove();
+      if (host.children.length === 0) host.classList.add('hidden');
+    }, 300);
+  }
+
+  alert.querySelector('button')!.addEventListener('click', dismiss);
+  hideTimer = setTimeout(dismiss, TOAST_DURATION_MS);
+
+  toast.appendChild(alert);
   container.classList.remove('hidden');
-
-  if (hideTimer) clearTimeout(hideTimer);
-  hideTimer = setTimeout(() => hideToast(), 4000);
+  container.appendChild(toast);
 }
 
 export function hideToast() {
-  const container = document.getElementById('toast-container');
+  const container = getContainer();
   if (container) container.classList.add('hidden');
 }
-
-const closeBtn = document.getElementById('toast-close');
-if (closeBtn) closeBtn.addEventListener('click', hideToast);
 
 // SSR toasts — inicializar los que llegaron con data-toast
 document.querySelectorAll<HTMLElement>('[data-toast]').forEach(initToast);
 
-function initToast(container: HTMLElement) {
-  container.removeAttribute('data-toast');
-  const closeBtn = container.querySelector('button')!;
-  closeBtn.addEventListener('click', () => container.remove());
-  setTimeout(() => {
-    container.style.transition = 'opacity 0.3s ease-out';
-    container.style.opacity = '0';
-    setTimeout(() => container.remove(), 300);
-  }, 10000);
+function initToast(toast: HTMLElement) {
+  toast.removeAttribute('data-toast');
+  toast.querySelector('button')!.addEventListener('click', () => removeToast());
+  setTimeout(removeToast, 10000);
+
+  function removeToast() {
+    toast.style.transition = 'opacity 0.3s ease-out';
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }
 }
 
 (window as any).showToast = showToast;

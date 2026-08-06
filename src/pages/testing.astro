@@ -1,0 +1,121 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Toast from '@/components/toast.astro';
+import { getGameBySlug } from '@/services/games';
+
+const [game, error] = await getGameBySlug('chrono-cross', Astro.url.origin);
+
+if (!game) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout 
+  title="Testing" 
+  description="Testing">
+  
+  <section class="p-4 pt-20" data-game-id={game.id}>
+    <!--
+    <pre>{JSON.stringify(
+      game.guides.map((g) => ({
+        ...g,
+        adventures: g.adventures.map(({ images, ...a }) => a),
+      })),
+      null,
+      2
+    )}</pre>
+
+    <h2 class="mt-8 font-bold">Progreso (user-guides por game)</h2>
+    <pre id="progress-out">Cargando...</pre>
+    -->
+
+    <div class=" flex gap-4 p-4 text-error">
+      <div class="flex gap-2">
+        <span class="loading loading-spinner text-error"></span>
+        loading user guide...
+      </div>
+      <div class="flex gap-2">
+        <span class="loading loading-spinner text-error"></span>
+        loading user adventure... 
+      </div>
+    </div>
+
+    {
+      game.guides.map((gui) => (
+        <section class="grid mb-4">
+          <div class="flex gap-4 text-primary">
+            <div class="tooltip tooltip-top tooltip-start" data-tip="Debes Iniciar Sesion">
+              <input type="checkbox" data-guide-id={gui.id} />
+            </div>
+            <p>[Guide {gui.id}] {gui.title}</p>
+          </div>
+          <div class="pl-20 text-warning">
+            {
+              gui.adventures.map((adv) => (
+                <div class="flex gap-4">
+                  <input type="checkbox" data-adventure-id={adv.id} disabled />
+                  <p>[Adventure Id: {adv.id}]</p>
+                  <span class="text-accent">islogged</span>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+      ))
+    }
+  </section>
+
+  {
+    error && <Toast message={error} type="error" />
+  }
+</Layout>
+
+<script>
+  import { getAccessToken, isAuthenticated } from '@/lib/auth';
+  import { showToast } from '@/lib/toast';
+  import { config } from 'astro:schema';
+  
+  const containerComponent = document.querySelector('[data-game-id]');
+  const gameId = Number(containerComponent?.getAttribute('data-game-id'));
+
+  containerComponent?.addEventListener('change', (e) => {
+    const checkbox = e.target as HTMLInputElement;
+    if (checkbox.matches('[data-guide-id]')) toggleGuide(checkbox);
+    if (checkbox.matches('[data-adventure-id]')) toggleAdventure(checkbox);
+  });
+
+  function toggleGuide(cb: HTMLInputElement): void {
+    const guideId = Number(cb.dataset.guideId);
+    cb.checked ? 'POST' : 'DELETE';
+    showToast(`guideId: (${guideId}), Checked: (${cb.checked})`, 'info');
+  }
+
+  function toggleAdventure(cb: HTMLInputElement): void {
+    const adventureId = Number(cb.dataset.adventureId);
+    cb.checked ? 'POST' : 'DELETE';
+    showToast(`guideId: (${adventureId}), Checked: (${cb.checked})`, 'info');
+  }
+  
+  async function fetchProgress(path: string) {
+    const res = await fetch('/api/proxy/' + path, {
+      headers: { Authorization: 'Bearer ' + getAccessToken() },
+    });
+    if (!res.ok) {
+      showToast(`Error al cargar progreso (${res.status})`, 'error');
+      return null;
+    }
+    showToast(`fetchProgress (${res.status})`, 'success');
+    return await res.json();
+  }
+
+  async function getGuideProgress() {
+    return await fetchProgress(`user-guides/by-game/${gameId}`);
+  }
+
+  async function getAdventureProgress() {
+    return await fetchProgress(`user-adventures/by-game/${gameId}`);
+  }
+
+  console.log(await getGuideProgress())
+  console.log(await getAdventureProgress())
+</script>
