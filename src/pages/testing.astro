@@ -75,12 +75,7 @@ if (!game) {
 <script>
   import { getAccessToken, isAuthenticated } from '@/lib/auth';
   import { showToast } from '@/lib/toast';
-
-  export interface GuideCheck { guide_id: number; }
-  export interface AdventureCheck { adventure_id: number; }
-
-  type HttpMethod = 'GET' | 'POST' | 'DELETE';
-  type RequestBody = GuideCheck | AdventureCheck;
+  import type { GuideCheck, AdventureCheck, HttpMethod, RequestBody, UserGuideResponse, UserAdventureResponse } from '@/types/progress';
 
   const allTooltips = document.querySelectorAll<HTMLElement>('[data-tip]');
   const allGuides = document.querySelectorAll<HTMLInputElement>('[data-guide-id]');
@@ -97,10 +92,11 @@ if (!game) {
   async function toggleGuide(cb: HTMLInputElement) {
     const guideId = Number(cb.dataset.guideId);
     const checked = cb.checked;
+    const body: GuideCheck = { guide_id: guideId };
     const result = await fetchProgress(
       checked ? 'user-guides' : `user-guides/${guideId}`,
       checked ? 'POST' : 'DELETE',
-      checked ? { guide_id: guideId } : undefined
+      checked ? body : undefined
     );
     if (result === null) cb.checked = !checked;
   }
@@ -108,15 +104,16 @@ if (!game) {
   async function toggleAdventure(cb: HTMLInputElement) {
     const adventureId = Number(cb.dataset.adventureId);
     const checked = cb.checked;
+    const body: AdventureCheck = { adventure_id: adventureId };
     const result = await fetchProgress(
       checked ? 'user-adventures' : `user-adventures/${adventureId}`,
       checked ? 'POST' : 'DELETE',
-      checked ? { adventure_id: adventureId } : undefined
+      checked ? body : undefined
     );
     if (result === null) cb.checked = !checked;
   }
   
-  async function fetchProgress(path: string, method: HttpMethod = 'GET', body?: RequestBody) {
+  async function fetchProgress<T>(path: string, method: HttpMethod = 'GET', body?: RequestBody): Promise<T | null> {
     const res = await fetch('/api/proxy/' + path, {
       method,
       headers: { 
@@ -131,26 +128,48 @@ if (!game) {
       return null;
     }
 
-    if (res.status === 204) return {}; 
-    return await res.json();
+    if (res.status === 204) return {} as T; 
+    return (await res.json()) as T;
   }
 
-  async function getGuideProgress() {
+  async function getGuideProgress(): Promise<UserGuideResponse[] | null> {
     if (!isAuthenticated()) return [];
-    return await fetchProgress(`user-guides/by-game/${gameId}`);
+    return await fetchProgress<UserGuideResponse[]>(`user-guides/by-game/${gameId}`);
   }
 
-  async function getAdventureProgress() {
+  async function getAdventureProgress(): Promise<UserAdventureResponse[] | null> {
     if (!isAuthenticated()) return [];
-    return await fetchProgress(`user-adventures/by-game/${gameId}`);
+    return await fetchProgress<UserAdventureResponse[]>(`user-adventures/by-game/${gameId}`);
+  }
+
+  async function loadProgress() {
+    if (!isAuthenticated()) {
+      document.querySelectorAll<HTMLInputElement>('[data-guide-id], [data-adventure-id]')
+        .forEach((cb) => { cb.checked = false; });
+      return;
+    }
+
+    const [guides, adventures] = await Promise.all([
+      getGuideProgress(),
+      getAdventureProgress(),
+    ]);
+
+    const guideMap = new Map((guides ?? []).map((g) => [g.guide_id, g.is_completed]));
+    document.querySelectorAll<HTMLInputElement>('[data-guide-id]').forEach((cb) => {
+      cb.checked = guideMap.get(Number(cb.dataset.guideId)) === true;
+    });
+
+    const adventureMap = new Map((adventures ?? []).map((a) => [a.adventure_id, a.is_completed]));
+    document.querySelectorAll<HTMLInputElement>('[data-adventure-id]').forEach((cb) => {
+      cb.checked = adventureMap.get(Number(cb.dataset.adventureId)) === true;
+    });
   }
 
   // Se entera del logout (authchange) y actualiza la página sin recargar
   window.addEventListener('authchange', onAuthChange);
 
   async function onAuthChange() {
-    console.log(await getGuideProgress())
-    console.log(await getAdventureProgress())
+    await loadProgress()
 
     const authed = isAuthenticated();
     showToast(`authchange → isAuthenticated: (${authed})`, 'warning');
