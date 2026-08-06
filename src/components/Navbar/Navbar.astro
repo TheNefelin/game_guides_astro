@@ -155,5 +155,6 @@ const navLinks = [
   logoutBtn.addEventListener('click', () => {
     logout();
     updateUI();
+    window.addEventListener('authchange', updateUI);
   });
 </script>
