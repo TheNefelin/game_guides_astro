@@ -1,6 +1,6 @@
 export type ToastType = 'error' | 'success' | 'warning' | 'info';
 
-const TOAST_DURATION_MS = 4000;
+const TOAST_DURATION_MS = 5000;
 
 const typeConfig: Record<ToastType, { alert: string; icon: string }> = {
   error: {

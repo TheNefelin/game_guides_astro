@@ -42,7 +42,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
       guides.map((guide, gi) => (
         <div id={`G-${guide.id}`} class="collapse collapse-arrow bg-base-100/80 border border-base-content/5 mb-3 rounded-xl">
           <input type="checkbox" />
-          <div class="collapse-title text-base md:text-lg font-medium text-base-content flex items-center gap-3 bg-accent/50 rounded-xl">
+          <div class="collapse-title text-base md:text-lg font-medium text-base-content flex items-center gap-3 rounded-xl" data-guide-title={guide.id}>
             <span class={`w-7 h-7 rounded-full ${badgeClass(gi)} text-xs font-bold flex items-center justify-center shrink-0`}>
               {gi + 1}
             </span>
@@ -66,7 +66,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
                     : 'p-3 rounded-lg bg-base-content/2 border-l-2 border-primary/30 text-base-content/70'}>
                     <div class="flex items-center gap-2">
                       <div class="tooltip tooltip-top tooltip-start" data-tip="Debes Iniciar Sesion">
-                        <input type="checkbox" class="checkbox checkbox-accent checkbox-xs" data-adventure-id={adv.id} />
+                        <input type="checkbox" class="checkbox checkbox-accent checkbox-xs border-2" data-adventure-id={adv.id} />
                       </div>
                       <span class="text-xs font-bold uppercase">{stepLabel(adv.is_important, adv.is_optional)}</span>
                     </div>
@@ -114,6 +114,11 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
   const allGuides = containerComponent?.querySelectorAll<HTMLInputElement>('[data-guide-id]') ?? [];
   const allAdventure = containerComponent?.querySelectorAll<HTMLInputElement>('[data-adventure-id]') ?? [];
 
+  const guideTitles = new Map<number, HTMLElement>();
+  containerComponent?.querySelectorAll<HTMLElement>('[data-guide-title]').forEach((el) => {
+    guideTitles.set(Number(el.dataset.guideTitle), el);
+  });
+
   const pending = new Set<HTMLInputElement>();
 
   containerComponent?.addEventListener('change', async (e) => {
@@ -121,6 +126,10 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     if (e.target.matches('[data-guide-id]')) await toggleGuide(e.target);
     else if (e.target.matches('[data-adventure-id]')) await toggleAdventure(e.target);
   });
+
+  function syncGuideTitle(cb: HTMLInputElement) {
+    guideTitles.get(Number(cb.dataset.guideId))?.classList.toggle('bg-accent/50', cb.checked);
+  }
 
   async function toggleGuide(cb: HTMLInputElement) {
     if (pending.has(cb)) return;
@@ -135,8 +144,10 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
         checked ? body : undefined
       );
       if (result === null) cb.checked = !checked;
+      else showToast('Guía modificada correctamente', 'success');
     } finally {
       pending.delete(cb);
+      syncGuideTitle(cb);
     }
   }
 
@@ -153,6 +164,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
         checked ? body : undefined
       );
       if (result === null) cb.checked = !checked;
+      else showToast('Aventura modificada correctamente', 'success');
     } finally {
       pending.delete(cb);
     }
@@ -207,6 +219,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     const guideMap = new Map((guides ?? []).map((g) => [g.guide_id, g.is_completed]));
     allGuides.forEach((cb) => {
       cb.checked = guideMap.get(Number(cb.dataset.guideId)) === true;
+      syncGuideTitle(cb);
     });
 
     const adventureMap = new Map((adventures ?? []).map((a) => [a.adventure_id, a.is_completed]));

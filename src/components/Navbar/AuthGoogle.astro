@@ -104,5 +104,6 @@ import mewtwoFallback from '@/assets/images/mewtwo.png';
   logoutBtn.addEventListener('click', () => {
     logout();
     updateUI();
+    window.addEventListener('authchange', updateUI);
   });
 </script>

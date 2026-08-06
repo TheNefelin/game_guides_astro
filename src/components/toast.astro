@@ -14,7 +14,7 @@ const ssrConfig: Record<ToastType, { alert: string; icon: string }> = {
     icon: 'fa-solid fa-circle-exclamation text-error text-lg',
   },
   success: {
-    alert: 'flex items-center gap-3 px-5 py-3 rounded-2xl border bg-linear-to-r from-success/40 to-success/30 border-success shadow-lg shadow-success/30',
+    alert: 'flex items-center gap-3 px-5 py-3 rounded-2xl border bg-linear-to-r from-success/40 to-success/60 border-success shadow-lg shadow-success/30',
     icon: 'fa-solid fa-circle-check text-success text-lg',
   },
   warning: {
@@ -35,7 +35,7 @@ const ssrConfig: Record<ToastType, { alert: string; icon: string }> = {
       <div class={ssrConfig[type].alert}>
         <i class={ssrConfig[type].icon}></i>
         <span class="text-white text-sm font-medium flex-1">{message}</span>
-        <button class="text-white/40 hover:text-white/70 transition-colors text-lg leading-none">&times;</button>
+        <button class="text-white/50 hover:text-white transition-colors text-lg leading-none">&times;</button>
       </div>
     </div>
   )
