@@ -53,7 +53,9 @@ if (!game) {
             {
               gui.adventures.map((adv) => (
                 <div class="flex gap-4">
-                  <input type="checkbox" data-adventure-id={adv.id} disabled />
+                  <div class="tooltip tooltip-top tooltip-start" data-tip="Debes Iniciar Sesion">
+                    <input type="checkbox" data-adventure-id={adv.id} />
+                  </div>
                   <p>[Adventure Id: {adv.id}]</p>
                   <span class="text-accent">islogged</span>
                 </div>
@@ -73,59 +75,89 @@ if (!game) {
 <script>
   import { getAccessToken, isAuthenticated } from '@/lib/auth';
   import { showToast } from '@/lib/toast';
-  
-  const containerComponent = document.querySelector('[data-game-id]');
+
+  export interface GuideCheck { guide_id: number; }
+  export interface AdventureCheck { adventure_id: number; }
+
+  type HttpMethod = 'GET' | 'POST' | 'DELETE';
+  type RequestBody = GuideCheck | AdventureCheck;
+
+  const allTooltips = document.querySelectorAll<HTMLElement>('[data-tip]');
+  const allGuides = document.querySelectorAll<HTMLInputElement>('[data-guide-id]');
+  const allAdventure = document.querySelectorAll<HTMLInputElement>('[data-adventure-id]');
+  const containerComponent = document.querySelector<HTMLElement>('[data-game-id]');
   const gameId = Number(containerComponent?.getAttribute('data-game-id'));
 
-  containerComponent?.addEventListener('change', (e) => {
+  containerComponent?.addEventListener('change', async (e) => {
     const checkbox = e.target as HTMLInputElement;
-    if (checkbox.matches('[data-guide-id]')) toggleGuide(checkbox);
-    if (checkbox.matches('[data-adventure-id]')) toggleAdventure(checkbox);
+    if (checkbox.matches('[data-guide-id]')) await toggleGuide(checkbox);
+    if (checkbox.matches('[data-adventure-id]')) await toggleAdventure(checkbox);
   });
 
-  function toggleGuide(cb: HTMLInputElement): void {
+  async function toggleGuide(cb: HTMLInputElement) {
     const guideId = Number(cb.dataset.guideId);
-    cb.checked ? 'POST' : 'DELETE';
-    showToast(`guideId: (${guideId}), Checked: (${cb.checked})`, 'info');
+    const checked = cb.checked;
+    const result = await fetchProgress(
+      checked ? 'user-guides' : `user-guides/${guideId}`,
+      checked ? 'POST' : 'DELETE',
+      checked ? { guide_id: guideId } : undefined
+    );
+    if (result === null) cb.checked = !checked;
   }
 
-  function toggleAdventure(cb: HTMLInputElement): void {
+  async function toggleAdventure(cb: HTMLInputElement) {
     const adventureId = Number(cb.dataset.adventureId);
-    cb.checked ? 'POST' : 'DELETE';
-    showToast(`guideId: (${adventureId}), Checked: (${cb.checked})`, 'info');
+    const checked = cb.checked;
+    const result = await fetchProgress(
+      checked ? 'user-adventures' : `user-adventures/${adventureId}`,
+      checked ? 'POST' : 'DELETE',
+      checked ? { adventure_id: adventureId } : undefined
+    );
+    if (result === null) cb.checked = !checked;
   }
   
-  async function fetchProgress(path: string) {
+  async function fetchProgress(path: string, method: HttpMethod = 'GET', body?: RequestBody) {
     const res = await fetch('/api/proxy/' + path, {
-      headers: { Authorization: 'Bearer ' + getAccessToken() },
-    });
-    showToast(`isAuthenticated: (${isAuthenticated})`, 'warning');    
+      method,
+      headers: { 
+        Authorization: 'Bearer ' + getAccessToken(), 
+        ...(body && { 'Content-Type': 'application/json' }),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    }); 
+    
     if (!res.ok) {
       showToast(`Error al cargar progreso (${res.status})`, 'error');
       return null;
     }
-    showToast(`fetchProgress (${res.status})`, 'success');
+
+    if (res.status === 204) return {}; 
     return await res.json();
   }
 
   async function getGuideProgress() {
+    if (!isAuthenticated()) return [];
     return await fetchProgress(`user-guides/by-game/${gameId}`);
   }
 
   async function getAdventureProgress() {
+    if (!isAuthenticated()) return [];
     return await fetchProgress(`user-adventures/by-game/${gameId}`);
   }
-
-  console.log(await getGuideProgress())
-  console.log(await getAdventureProgress())
 
   // Se entera del logout (authchange) y actualiza la página sin recargar
   window.addEventListener('authchange', onAuthChange);
 
-  function onAuthChange() {
+  async function onAuthChange() {
+    console.log(await getGuideProgress())
+    console.log(await getAdventureProgress())
+
     const authed = isAuthenticated();
     showToast(`authchange → isAuthenticated: (${authed})`, 'warning');
-    document.querySelectorAll<HTMLInputElement>('[data-guide-id]')
-      .forEach((cb) => { cb.disabled = !authed; });
+    allGuides.forEach((cb) => { cb.disabled = !authed; });
+    allAdventure.forEach((cb) => { cb.disabled = !authed; });
+    allTooltips.forEach((t) => { authed ? t.removeAttribute('data-tip') : t.setAttribute('data-tip', 'Debes Iniciar Sesion') });
   }
+
+  onAuthChange();
 </script>
