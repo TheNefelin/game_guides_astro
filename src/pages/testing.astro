@@ -78,11 +78,12 @@ if (!game) {
   import { showToast } from '@/lib/toast';
   import type { GuideCheck, AdventureCheck, HttpMethod, RequestBody, UserGuideResponse, UserAdventureResponse } from '@/types/progress';
 
-  const allTooltips = document.querySelectorAll<HTMLElement>('[data-tip]');
-  const allGuides = document.querySelectorAll<HTMLInputElement>('[data-guide-id]');
-  const allAdventure = document.querySelectorAll<HTMLInputElement>('[data-adventure-id]');
   const containerComponent = document.querySelector<HTMLElement>('[data-game-id]');
   const gameId = Number(containerComponent?.getAttribute('data-game-id'));
+
+  const allTooltips = containerComponent?.querySelectorAll<HTMLElement>('[data-tip]') ?? [];
+  const allGuides = containerComponent?.querySelectorAll<HTMLInputElement>('[data-guide-id]') ?? [];
+  const allAdventure = containerComponent?.querySelectorAll<HTMLInputElement>('[data-adventure-id]') ?? [];
 
   const pending = new Set<HTMLInputElement>();
 
@@ -145,7 +146,6 @@ if (!game) {
     }
 
     if (res.status === 401) {
-      showToast('Sesión expirada, inicia sesión de nuevo', 'error');
       logout();
       return null;
     }

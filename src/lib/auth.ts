@@ -1,3 +1,5 @@
+import { showToast } from '@/lib/toast';
+
 type AuthTokens = {
   token: string;
   refresh_token: string;
@@ -66,6 +68,7 @@ export function logout(): void {
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('user');
   window.dispatchEvent(new CustomEvent('authchange'));
+  showToast('Sesión finalizada', 'info');
 }
 
 export async function loginWithGoogle(): Promise<void> {

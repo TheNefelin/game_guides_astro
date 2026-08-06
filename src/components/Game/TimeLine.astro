@@ -12,7 +12,7 @@ const badgeClass = (i: number) => i % 2 === 0 ? 'border border-pink-400 bg-pink-
 const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? 'Decisión importante' : isOptional ? 'Paso opcional' : 'Paso';
 ---
 
-<div class="glass-card rounded-xl p-6 md:p-8">
+<div class="glass-card rounded-xl p-6 md:p-8" data-game-id={game.id}>
   <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
     <div>
       <h2 class="font-gaming text-2xl font-bold text-base-content">
@@ -51,7 +51,9 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
           <div class="collapse-content">
             <header>
               <div class="flex items-center gap-2 my-4 p-3 rounded-lg bg-base-content/5">
-                <input type="checkbox" class="checkbox checkbox-accent checkbox-xs border-2" />
+                <div class="tooltip tooltip-top tooltip-start" data-tip="Debes Iniciar Sesion">
+                  <input type="checkbox" class="checkbox checkbox-accent checkbox-xs border-2" data-guide-id={guide.id} />
+                </div>
                 <span class="text-base-content/60 text-sm">Marcar como completado</span>
               </div>
               <p class="whitespace-pre-wrap font-extralight my-4">{ guide.summary}</p>
@@ -62,7 +64,12 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
                   <div class={adv.is_important
                     ? 'p-3 rounded-lg bg-error/80 border-l-2 border-error text-white'
                     : 'p-3 rounded-lg bg-base-content/2 border-l-2 border-primary/30 text-base-content/70'}>
-                    <span class="text-xs font-bold uppercase">{stepLabel(adv.is_important, adv.is_optional)}</span>
+                    <div class="flex items-center gap-2">
+                      <div class="tooltip tooltip-top tooltip-start" data-tip="Debes Iniciar Sesion">
+                        <input type="checkbox" class="checkbox checkbox-accent checkbox-xs" data-adventure-id={adv.id} />
+                      </div>
+                      <span class="text-xs font-bold uppercase">{stepLabel(adv.is_important, adv.is_optional)}</span>
+                    </div>
                     <p class="text-sm py-4">{adv.description}</p>
                     <section class="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {
@@ -93,3 +100,134 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     )
   }
 </div>
+
+
+<script>
+  import { getAccessToken, isAuthenticated, logout } from '@/lib/auth';
+  import { showToast } from '@/lib/toast';
+  import type { GuideCheck, AdventureCheck, HttpMethod, RequestBody, UserGuideResponse, UserAdventureResponse } from '@/types/progress';
+
+  const containerComponent = document.querySelector<HTMLElement>('[data-game-id]');
+  const gameId = Number(containerComponent?.getAttribute('data-game-id'));
+
+  const allTooltips = containerComponent?.querySelectorAll<HTMLElement>('[data-tip]') ?? [];
+  const allGuides = containerComponent?.querySelectorAll<HTMLInputElement>('[data-guide-id]') ?? [];
+  const allAdventure = containerComponent?.querySelectorAll<HTMLInputElement>('[data-adventure-id]') ?? [];
+
+  const pending = new Set<HTMLInputElement>();
+
+  containerComponent?.addEventListener('change', async (e) => {
+    if (!(e.target instanceof HTMLInputElement)) return;
+    if (e.target.matches('[data-guide-id]')) await toggleGuide(e.target);
+    else if (e.target.matches('[data-adventure-id]')) await toggleAdventure(e.target);
+  });
+
+  async function toggleGuide(cb: HTMLInputElement) {
+    if (pending.has(cb)) return;
+    pending.add(cb);
+    const guideId = Number(cb.dataset.guideId);
+    const checked = cb.checked;
+    const body: GuideCheck = { guide_id: guideId };
+    try {
+      const result = await fetchProgress(
+        checked ? 'user-guides' : `user-guides/${guideId}`,
+        checked ? 'POST' : 'DELETE',
+        checked ? body : undefined
+      );
+      if (result === null) cb.checked = !checked;
+    } finally {
+      pending.delete(cb);
+    }
+  }
+
+  async function toggleAdventure(cb: HTMLInputElement) {
+    if (pending.has(cb)) return;
+    pending.add(cb);
+    const adventureId = Number(cb.dataset.adventureId);
+    const checked = cb.checked;
+    const body: AdventureCheck = { adventure_id: adventureId };
+    try {
+      const result = await fetchProgress(
+        checked ? 'user-adventures' : `user-adventures/${adventureId}`,
+        checked ? 'POST' : 'DELETE',
+        checked ? body : undefined
+      );
+      if (result === null) cb.checked = !checked;
+    } finally {
+      pending.delete(cb);
+    }
+  }
+
+  async function fetchProgress<T>(path: string, method: HttpMethod = 'GET', body?: RequestBody): Promise<T | null> {
+    let res: Response;
+    try {
+      res = await fetch('/api/proxy/' + path, {
+        method,
+        headers: { 
+          Authorization: 'Bearer ' + getAccessToken(), 
+          ...(body && { 'Content-Type': 'application/json' }),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    } catch {
+      showToast('Error de red, revisa tu conexión', 'error');
+      return null;
+    }
+
+    if (res.status === 401) {
+      logout();
+      return null;
+    }
+
+    if (!res.ok) {
+      showToast(`Error al sincronizar progreso (${res.status})`, 'error');
+      return null;
+    }
+
+    if (res.status === 204) return {} as T; 
+    return (await res.json()) as T;
+  }
+
+  async function getGuideProgress(): Promise<UserGuideResponse[] | null> {
+    if (!isAuthenticated()) return [];
+    return await fetchProgress<UserGuideResponse[]>(`user-guides/by-game/${gameId}`);
+  }
+
+  async function getAdventureProgress(): Promise<UserAdventureResponse[] | null> {
+    if (!isAuthenticated()) return [];
+    return await fetchProgress<UserAdventureResponse[]>(`user-adventures/by-game/${gameId}`);
+  }
+
+  async function loadProgress() {
+    const [guides, adventures] = await Promise.all([
+      getGuideProgress(),
+      getAdventureProgress(),
+    ]);
+
+    const guideMap = new Map((guides ?? []).map((g) => [g.guide_id, g.is_completed]));
+    allGuides.forEach((cb) => {
+      cb.checked = guideMap.get(Number(cb.dataset.guideId)) === true;
+    });
+
+    const adventureMap = new Map((adventures ?? []).map((a) => [a.adventure_id, a.is_completed]));
+    allAdventure.forEach((cb) => {
+      cb.checked = adventureMap.get(Number(cb.dataset.adventureId)) === true;
+    });
+  }
+
+  // Se entera del logout (authchange) y actualiza la página sin recargar
+  window.addEventListener('authchange', onAuthChange);
+
+  async function onAuthChange() {
+    await loadProgress();
+
+    const authed = isAuthenticated();
+    allGuides.forEach((cb) => { cb.disabled = !authed; });
+    allAdventure.forEach((cb) => { cb.disabled = !authed; });
+    allTooltips.forEach((t) => {
+      authed ? t.removeAttribute('data-tip') : t.setAttribute('data-tip', 'Debes Iniciar Sesion');
+    });
+  }
+
+  onAuthChange();
+</script>
