@@ -36,8 +36,29 @@ export function getUser(): AuthTokens['user'] | null {
   return raw ? JSON.parse(raw) : null;
 }
 
+export function isTokenExpired(token: string): boolean {
+  try {
+    const [, payload] = token.split('.');
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = atob(base64 + '='.repeat((4 - (base64.length % 4)) % 4));
+    const decoded = JSON.parse(json);
+    if (typeof decoded.exp !== 'number') return true;
+    return decoded.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+}
+
 export function isAuthenticated(): boolean {
-  return !!getAccessToken();
+  const token = getAccessToken();
+  return !!token && !isTokenExpired(token);
+}
+
+export function clearExpiredSession(): void {
+  const token = getAccessToken();
+  if (token && isTokenExpired(token)) {
+    logout();
+  }
 }
 
 export function logout(): void {
