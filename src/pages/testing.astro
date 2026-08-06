@@ -73,7 +73,6 @@ if (!game) {
 <script>
   import { getAccessToken, isAuthenticated } from '@/lib/auth';
   import { showToast } from '@/lib/toast';
-  import { config } from 'astro:schema';
   
   const containerComponent = document.querySelector('[data-game-id]');
   const gameId = Number(containerComponent?.getAttribute('data-game-id'));
@@ -100,6 +99,7 @@ if (!game) {
     const res = await fetch('/api/proxy/' + path, {
       headers: { Authorization: 'Bearer ' + getAccessToken() },
     });
+    showToast(`isAuthenticated: (${isAuthenticated})`, 'warning');    
     if (!res.ok) {
       showToast(`Error al cargar progreso (${res.status})`, 'error');
       return null;
@@ -118,4 +118,14 @@ if (!game) {
 
   console.log(await getGuideProgress())
   console.log(await getAdventureProgress())
+
+  // Se entera del logout (authchange) y actualiza la página sin recargar
+  window.addEventListener('authchange', onAuthChange);
+
+  function onAuthChange() {
+    const authed = isAuthenticated();
+    showToast(`authchange → isAuthenticated: (${authed})`, 'warning');
+    document.querySelectorAll<HTMLInputElement>('[data-guide-id]')
+      .forEach((cb) => { cb.disabled = !authed; });
+  }
 </script>
