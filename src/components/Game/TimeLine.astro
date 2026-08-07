@@ -30,7 +30,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
       <button class="btn btn-ghost btn-xs text-base-content/50 hover:text-primary" data-close-all>
         <i class="fa-solid fa-angle-up mr-1"></i> Cerrar todos
       </button>
-      <button class="btn btn-ghost btn-xs text-base-content/50 hover:text-primary" disabled>
+      <button class="btn btn-ghost btn-xs text-base-content/50 hover:text-primary" data-reset>
         <i class="fa-solid fa-rotate-right mr-1"></i> Reset
       </button>
     </div>
@@ -105,11 +105,35 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
   }
 </div>
 
+<!-- Reset progress confirmation modal -->
+<dialog id="reset-modal" class="modal">
+  <div class="modal-box bg-base-100 text-base-content border border-error max-w-sm p-6">
+    <form method="dialog">
+      <button class="absolute top-3 right-3 btn btn-sm btn-circle bg-base-content/10 hover:bg-error/20 text-base-content">
+        ✕
+      </button>
+    </form>
+    <div class="flex items-start gap-3">
+      <i class="fa-solid fa-triangle-exclamation text-error text-2xl mt-0.5"></i>
+      <div>
+        <h3 class="font-gaming text-lg font-bold text-base-content">¿Reiniciar progreso?</h3>
+        <p class="text-base-content/60 text-sm mt-1">
+          Se desmarcarán todas las guías y pasos de este juego. Esta acción no se puede deshacer.
+        </p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn btn-ghost btn-sm text-base-content/60" data-reset-cancel>Cancelar</button>
+      <button class="btn btn-error btn-sm text-white" data-reset-confirm>Reiniciar</button>
+    </div>
+  </div>
+</dialog>
+
 
 <script>
   import { getAccessToken, isAuthenticated, logout } from '@/lib/auth';
   import { showToast } from '@/lib/toastTrigger';
-  import type { GuideCheck, AdventureCheck, HttpMethod, RequestBody, UserGuideResponse, UserAdventureResponse } from '@/types/progress';
+  import type { GuideCheck, AdventureCheck, HttpMethod, RequestBody, UserProgressResponse } from '@/types/progress';
 
   const containerComponent = document.querySelector<HTMLElement>('[data-game-id]');
   const gameId = Number(containerComponent?.getAttribute('data-game-id'));
@@ -120,6 +144,10 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
   const collapseToggles = containerComponent?.querySelectorAll<HTMLInputElement>('.collapse > input[type="checkbox"]') ?? [];
   const progressCount = containerComponent?.querySelector<HTMLElement>('[data-progress-count]');
   const closeAllBtn = containerComponent?.querySelector<HTMLElement>('[data-close-all]');
+  const resetBtn = containerComponent?.querySelector<HTMLElement>('[data-reset]');
+  const resetModal = document.querySelector<HTMLDialogElement>('#reset-modal');
+  const resetCancel = resetModal?.querySelector<HTMLElement>('[data-reset-cancel]');
+  const resetConfirm = resetModal?.querySelector<HTMLElement>('[data-reset-confirm]');
 
   const totalSteps = allGuides.length + allAdventure.length;
 
@@ -144,6 +172,32 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
 
   closeAllBtn?.addEventListener('click', () => {
     collapseToggles.forEach((cb) => { cb.checked = false; });
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    resetModal?.showModal();
+  });
+
+  resetCancel?.addEventListener('click', () => {
+    resetModal?.close();
+  });
+
+  resetConfirm?.addEventListener('click', async () => {
+    if (resetConfirm.dataset.busy) return;
+    resetConfirm.dataset.busy = 'true';
+    resetConfirm.classList.add('btn-disabled');
+    try {
+      const result = await fetchProgress<unknown>('user-progress/by-game/' + gameId, 'DELETE');
+      resetModal?.close();
+      if (result === null) return;
+      allGuides.forEach((cb) => { cb.checked = false; syncGuideTitle(cb); });
+      allAdventure.forEach((cb) => { cb.checked = false; });
+      updateProgressCount();
+      showToast('Progreso reiniciado', 'success');
+    } finally {
+      delete resetConfirm.dataset.busy;
+      resetConfirm.classList.remove('btn-disabled');
+    }
   });
 
   function syncGuideTitle(cb: HTMLInputElement) {
@@ -221,29 +275,21 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     return (await res.json()) as T;
   }
 
-  async function getGuideProgress(): Promise<UserGuideResponse[] | null> {
-    if (!isAuthenticated()) return [];
-    return await fetchProgress<UserGuideResponse[]>(`user-guides/by-game/${gameId}`);
-  }
-
-  async function getAdventureProgress(): Promise<UserAdventureResponse[] | null> {
-    if (!isAuthenticated()) return [];
-    return await fetchProgress<UserAdventureResponse[]>(`user-adventures/by-game/${gameId}`);
+  async function getProgress(): Promise<UserProgressResponse | null> {
+    if (!isAuthenticated()) return { guides: [], adventures: [] };
+    return await fetchProgress<UserProgressResponse>(`user-progress/by-game/${gameId}`);
   }
 
   async function loadProgress() {
-    const [guides, adventures] = await Promise.all([
-      getGuideProgress(),
-      getAdventureProgress(),
-    ]);
+    const progress = await getProgress();
 
-    const guideMap = new Map((guides ?? []).map((g) => [g.guide_id, g.is_completed]));
+    const guideMap = new Map((progress?.guides ?? []).map((g) => [g.guide_id, g.is_completed]));
     allGuides.forEach((cb) => {
       cb.checked = guideMap.get(Number(cb.dataset.guideId)) === true;
       syncGuideTitle(cb);
     });
 
-    const adventureMap = new Map((adventures ?? []).map((a) => [a.adventure_id, a.is_completed]));
+    const adventureMap = new Map((progress?.adventures ?? []).map((a) => [a.adventure_id, a.is_completed]));
     allAdventure.forEach((cb) => {
       cb.checked = adventureMap.get(Number(cb.dataset.adventureId)) === true;
     });
@@ -263,6 +309,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     allTooltips.forEach((t) => {
       authed ? t.removeAttribute('data-tip') : t.setAttribute('data-tip', 'Debes Iniciar Sesion');
     });
+    resetBtn?.classList.toggle('hidden', !authed);
   }
 
   onAuthChange();

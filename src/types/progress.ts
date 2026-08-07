@@ -21,3 +21,8 @@ export interface UserAdventureResponse {
   is_completed: boolean;
   completed_at: string | null;
 }
+
+export interface UserProgressResponse {
+  guides: UserGuideResponse[];
+  adventures: UserAdventureResponse[];
+}
