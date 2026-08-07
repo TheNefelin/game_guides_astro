@@ -12,18 +12,7 @@ type AuthTokens = {
   };
 };
 
-function loadGoogleScript(): Promise<void> {
-  return new Promise((resolve) => {
-    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
-      resolve();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.onload = () => resolve();
-    document.head.appendChild(script);
-  });
-}
+// ---------- Tokens y sesión (localStorage) ----------
 
 export function getAccessToken(): string | null {
   return localStorage.getItem('access_token');
@@ -37,6 +26,8 @@ export function getUser(): AuthTokens['user'] | null {
   const raw = localStorage.getItem('user');
   return raw ? JSON.parse(raw) : null;
 }
+
+// ---------- Expiración / autenticación ----------
 
 export function isTokenExpired(token: string): boolean {
   try {
@@ -63,12 +54,29 @@ export function clearExpiredSession(): void {
   }
 }
 
+// ---------- Cierre de sesión (solo local: borra tokens + notifica) ----------
+
 export function logout(): void {
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('user');
   window.dispatchEvent(new CustomEvent('authchange'));
   showToast('Sesión finalizada', 'info');
+}
+
+// ---------- Login Google ----------
+
+function loadGoogleScript(): Promise<void> {
+  return new Promise((resolve) => {
+    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+      resolve();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
 }
 
 export async function loginWithGoogle(): Promise<void> {
@@ -85,7 +93,7 @@ export async function loginWithGoogle(): Promise<void> {
         }
 
         try {
-          const res = await fetch('/api/auth/google', {
+          const res = await fetch('/api/proxy/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ googleToken: response.access_token }),
@@ -117,12 +125,14 @@ export async function loginWithGoogle(): Promise<void> {
   });
 }
 
+// ---------- Refresh token (rotación) ----------
+
 export async function refreshAccessToken(): Promise<string | null> {
   const refresh_token = getRefreshToken();
   if (!refresh_token) return null;
 
   try {
-    const res = await fetch('/api/auth/refresh', {
+    const res = await fetch('/api/proxy/auth/refresh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token }),

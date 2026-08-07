@@ -125,7 +125,7 @@ game_guides_astro/
 Browser (Google GIS popup)
     │  access_token (Google)
     ▼
-Astro SSR Proxy (POST /api/auth/google)  ← solo esto vive en frontend
+Astro SSR Proxy universal (POST /api/proxy/auth/google)  ← solo esto vive en frontend
     │  googleToken
     ▼
 FastAPI Backend (POST /api/auth/google)  ← backend propio
@@ -156,12 +156,10 @@ src/
 ├── components/
 │   └── Navbar.astro       → Botón login, avatar, theme toggle
 ├── lib/
-│   └── auth.ts            → Lógica cliente: GIS popup + fetch a proxies + localStorage
+│   └── auth.ts            → Lógica cliente: GIS popup + fetch a proxy universal + localStorage
 ├── pages/
-│   └── api/auth/
-│       ├── google.ts      → SSR proxy: recibe { googleToken }, reenvía a FastAPI
-│       ├── refresh.ts     → SSR proxy: reenvía { refreshToken } a FastAPI
-│       └── logout.ts      → SSR proxy: reenvía { refreshToken } a FastAPI
+│   └── api/
+│       └── proxy/[...path].ts → Proxy SSR universal: reenvía a FastAPI; auth (google/refresh) va por esta misma ruta
 └── types/
     └── google.d.ts        → Declaración TypeScript para google.accounts.oauth2
 ```
@@ -177,8 +175,8 @@ const client = google.accounts.oauth2.initTokenClient({
   client_id: import.meta.env.PUBLIC_GOOGLE_CLIENT_ID,
   scope: 'openid email profile',
   callback: async (response) => {
-    // Envía access_token al proxy Astro (no directo a FastAPI)
-    const res = await fetch('/api/auth/google', {
+    // Envía access_token al proxy universal (no directo a FastAPI)
+    const res = await fetch('/api/proxy/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ googleToken: response.access_token }),
@@ -193,30 +191,21 @@ const client = google.accounts.oauth2.initTokenClient({
 client.requestAccessToken();
 ```
 
-### 5. Astro SSR Proxy (`src/pages/api/auth/google.ts`)
+### 5. Proxy universal (`src/pages/api/proxy/[...path].ts`)
 
 ```ts
-import type { APIRoute } from 'astro';
-
-export const POST: APIRoute = async ({ request }) => {
-  const body = await request.json();
-  const apiUrl = import.meta.env.API_URL; // solo SSR
-
-  const response = await fetch(`${apiUrl}/auth/google`, {
+// POST /api/proxy/{path} → fetch(`${API_URL}/{path}`, { method, headers, body })
+export const POST: APIRoute = async ({ url, request }) => {
+  const response = await fetch(`${API_URL}/${getPath(url)}${url.search}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ googleToken: body.googleToken }),
+    headers: buildHeaders(request, { 'Content-Type': 'application/json' }),
+    body: await request.text(),
   });
-
-  const data = await response.json();
-  return new Response(JSON.stringify(data), {
-    status: response.status,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return proxyResponse(response);
 };
 ```
 
-El proxy NO valida nada, solo reenvía. La validación la hace FastAPI.
+`buildHeaders(request, extra)` agrega `X-API-Key` (privado, solo SSR) y reenvía el `Authorization` entrante. El proxy NO valida nada, solo reenvía. La validación la hace FastAPI. El login (`google`), `refresh` y `logout` del backend van por esta misma ruta (`/api/proxy/auth/*`), sin archivos dedicados.
 
 ### 6. SSR mode requerido
 
@@ -236,10 +225,10 @@ export default defineConfig({
 ### 7. Token refresh automático
 
 ```ts
-const res = await fetch('/api/auth/refresh', {
+const res = await fetch('/api/proxy/auth/refresh', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ refreshToken }),
+  body: JSON.stringify({ refresh_token }),
 });
 if (res.ok) {
   const data = await res.json();
@@ -255,7 +244,7 @@ if (res.ok) {
 Usuario → Click "Login with Google"
          → GIS popup → selecciona cuenta
          → Callback recibe { access_token }
-         → fetch POST /api/auth/google (Astro SSR)
+         → fetch POST /api/proxy/auth/google (Astro SSR proxy universal)
               → fetch POST /api/auth/google (FastAPI)
               → response { token, refresh_token, user }
          → localStorage → UI actualizada (Navbar muestra avatar)
