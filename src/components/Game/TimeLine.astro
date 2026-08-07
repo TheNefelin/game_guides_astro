@@ -8,11 +8,12 @@ interface Props {
 const { game } = Astro.props;
 const guides = game.guides ?? [];
 const total = guides.length;
+const totalSteps = total + guides.reduce((n, g) => n + (g.adventures?.length ?? 0), 0);
 const badgeClass = (i: number) => i % 2 === 0 ? 'border border-pink-400 bg-pink-400/60' : 'border border-warning bg-warning/60';
 const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? 'Decisión importante' : isOptional ? 'Paso opcional' : 'Paso';
 ---
 
-<div class="glass-card rounded-xl p-6 md:p-8" data-game-id={game.id}>
+<div class="glass-card rounded-xl p-2 sm:p-8" data-game-id={game.id}>
   <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
     <div>
       <h2 class="font-gaming text-2xl font-bold text-base-content">
@@ -24,8 +25,11 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     </div>
     <div class="flex items-center gap-2">
       <span class="text-base-content/40 text-xs">
-        <i class="fa-regular fa-circle-check text-primary mr-1"></i> 0/{total}
+        <i class="fa-regular fa-circle-check text-primary mr-1"></i> <span data-progress-count>0/{totalSteps}</span>
       </span>
+      <button class="btn btn-ghost btn-xs text-base-content/50 hover:text-primary" data-close-all>
+        <i class="fa-solid fa-angle-up mr-1"></i> Cerrar todos
+      </button>
       <button class="btn btn-ghost btn-xs text-base-content/50 hover:text-primary" disabled>
         <i class="fa-solid fa-rotate-right mr-1"></i> Reset
       </button>
@@ -113,6 +117,17 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
   const allTooltips = containerComponent?.querySelectorAll<HTMLElement>('[data-tip]') ?? [];
   const allGuides = containerComponent?.querySelectorAll<HTMLInputElement>('[data-guide-id]') ?? [];
   const allAdventure = containerComponent?.querySelectorAll<HTMLInputElement>('[data-adventure-id]') ?? [];
+  const collapseToggles = containerComponent?.querySelectorAll<HTMLInputElement>('.collapse > input[type="checkbox"]') ?? [];
+  const progressCount = containerComponent?.querySelector<HTMLElement>('[data-progress-count]');
+  const closeAllBtn = containerComponent?.querySelector<HTMLElement>('[data-close-all]');
+
+  const totalSteps = allGuides.length + allAdventure.length;
+
+  function updateProgressCount() {
+    if (!progressCount) return;
+    const done = [...allGuides].filter((cb) => cb.checked).length + [...allAdventure].filter((cb) => cb.checked).length;
+    progressCount.textContent = `${done}/${totalSteps}`;
+  }
 
   const guideTitles = new Map<number, HTMLElement>();
   containerComponent?.querySelectorAll<HTMLElement>('[data-guide-title]').forEach((el) => {
@@ -125,6 +140,10 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     if (!(e.target instanceof HTMLInputElement)) return;
     if (e.target.matches('[data-guide-id]')) await toggleGuide(e.target);
     else if (e.target.matches('[data-adventure-id]')) await toggleAdventure(e.target);
+  });
+
+  closeAllBtn?.addEventListener('click', () => {
+    collapseToggles.forEach((cb) => { cb.checked = false; });
   });
 
   function syncGuideTitle(cb: HTMLInputElement) {
@@ -148,6 +167,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     } finally {
       pending.delete(cb);
       syncGuideTitle(cb);
+      updateProgressCount();
     }
   }
 
@@ -167,6 +187,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
       else showToast('Aventura modificada correctamente', 'success');
     } finally {
       pending.delete(cb);
+      updateProgressCount();
     }
   }
 
@@ -226,6 +247,8 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
     allAdventure.forEach((cb) => {
       cb.checked = adventureMap.get(Number(cb.dataset.adventureId)) === true;
     });
+
+    updateProgressCount();
   }
 
   // Se entera del logout (authchange) y actualiza la página sin recargar
