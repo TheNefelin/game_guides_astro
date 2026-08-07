@@ -1,4 +1,4 @@
-import { showToast } from '@/lib/toast';
+import { showToast } from '@/lib/toastTrigger';
 
 type AuthTokens = {
   token: string;

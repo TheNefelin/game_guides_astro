@@ -104,7 +104,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
 
 <script>
   import { getAccessToken, isAuthenticated, logout } from '@/lib/auth';
-  import { showToast } from '@/lib/toast';
+  import { showToast } from '@/lib/toastTrigger';
   import type { GuideCheck, AdventureCheck, HttpMethod, RequestBody, UserGuideResponse, UserAdventureResponse } from '@/types/progress';
 
   const containerComponent = document.querySelector<HTMLElement>('[data-game-id]');

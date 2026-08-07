@@ -1,0 +1,94 @@
+---
+import type { ToastType } from '@/lib/toastTrigger';
+
+interface Props {
+  message?: string;
+  type?: ToastType;
+}
+
+const { message = '', type = 'error' } = Astro.props;
+---
+
+{
+  message ? (
+    <div data-ssr-toast={message} data-ssr-type={type}></div>
+  ) : (
+    <section toast-container-id class="fixed bottom-7 right-20 z-50 grid gap-2 text-white"></section>
+  )
+}
+
+{!message && (
+  <script>
+    import { toastStyles, subscribeToasts, dismissToast, showToast } from '@/lib/toastTrigger';
+    import type { ToastItem, ToastType } from '@/lib/toastTrigger';
+
+    const container = document.querySelector<HTMLElement>('[toast-container-id]');
+    const elements = new Map<number, HTMLElement>();
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function createToastElement(item: ToastItem): HTMLElement {
+      const style = toastStyles[item.type];
+
+      const el = document.createElement('div');
+      el.className = `${style.toast} flex items-center gap-3 px-5 py-2 rounded-2xl backdrop-blur-md border min-w-64 text-white`;
+
+      const chip = document.createElement('span');
+      chip.className = 'flex items-center justify-center size-6 rounded-full bg-white shrink-0';
+      chip.innerHTML = `<i class="fa-solid ${style.icon} leading-none"></i>`;
+
+      const message = document.createElement('span');
+      message.className = 'text-sm font-medium flex-1';
+      message.textContent = item.message;
+
+      const close = document.createElement('button');
+      close.className = 'text-white/50 hover:text-white transition-colors text-lg leading-none';
+      close.innerHTML = '&times;';
+      close.addEventListener('click', () => dismissToast(item.id));
+
+      el.append(chip, message, close);
+      return el;
+    }
+
+    function dismissElement(el: HTMLElement) {
+      if (reducedMotion) {
+        el.remove();
+        return;
+      }
+      el.style.animation = 'none';
+      el.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      void el.offsetHeight;
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(20px)';
+      const finish = () => el.remove();
+      el.addEventListener('transitionend', finish, { once: true });
+      window.setTimeout(finish, 600);
+    }
+
+    if (container) {
+      subscribeToasts((list) => {
+        const ids = new Set(list.map((t) => t.id));
+
+        for (const item of list) {
+          if (!elements.has(item.id)) {
+            const el = createToastElement(item);
+            elements.set(item.id, el);
+            container.appendChild(el);
+          }
+        }
+
+        for (const [id, el] of elements) {
+          if (!ids.has(id)) {
+            elements.delete(id);
+            dismissElement(el);
+          }
+        }
+      });
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-ssr-toast]').forEach((el) => {
+      const type = (el.dataset.ssrType ?? 'error') as ToastType;
+      showToast(el.dataset.ssrToast ?? '', type);
+      el.remove();
+    });
+  </script>
+)}

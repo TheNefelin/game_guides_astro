@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar/Navbar.astro';
 import Footer from '@/components/Footer.astro';
 import ScrollToTop from '@/components/ScrollToTop.astro';
 import ModalImage from "@/components/ModalImage.astro";
+import ToastContainter from "@/components/toastContainter.astro";
 
 export interface Props {
   title?: string;
@@ -47,7 +48,7 @@ const {
 
 		<ModalImage />
 
-		<div id="toast-container" class="toast toast-end z-10 hidden"></div>
+		<ToastContainter />
 	</body>
 </html>
 
