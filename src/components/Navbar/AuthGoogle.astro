@@ -54,56 +54,17 @@ import mewtwoFallback from '@/assets/images/mewtwo.png';
 </script>
 
 <script>
-  import { loginWithGoogle, logout, getUser, isAuthenticated } from '@/lib/auth';
-  import { showToast } from '@/lib/toastTrigger';
+  import { initAuthUI } from '@/lib/auth-ui';
 
-  const loginSection = document.getElementById('auth-login')!;
-  const userSection = document.getElementById('auth-user')!;
-  const loginBtn = document.getElementById('googleLoginBtn') as HTMLButtonElement;
-  const loginBtnText = document.getElementById('loginBtnText') as HTMLSpanElement;
-  const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
-  const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
-  const userName = document.getElementById('userName')!;
-  const userEmail = document.getElementById('userEmail')!;
-
-  function updateUI() {
-    if (isAuthenticated()) {
-      loginSection.classList.add('hidden');
-      userSection.classList.remove('hidden');
-
-      const user = getUser();
-      if (user) {
-        userAvatar.src = user.picture || '/assets/images/mewtwo.png';
-        userName.textContent = user.name || '';
-        userEmail.textContent = user.email || '';
-      }
-    } else {
-      loginSection.classList.remove('hidden');
-      userSection.classList.add('hidden');
-    }
-  }
-
-  function setLoading(loading: boolean) {
-    loginBtn.disabled = loading;
-    loginBtnText.textContent = loading ? 'Cargando...' : 'Iniciar sesión';
-  }
-
-  updateUI();
-
-  loginBtn.addEventListener('click', async () => {
-    setLoading(true);
-    try {
-      await loginWithGoogle();
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Error al iniciar sesión', 'error');
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  logoutBtn.addEventListener('click', () => {
-    logout();
-    updateUI();
-    window.addEventListener('authchange', updateUI);
+  initAuthUI({
+    loginSection: document.getElementById('auth-login')!,
+    userSection: document.getElementById('auth-user')!,
+    loginBtn: document.getElementById('googleLoginBtn') as HTMLButtonElement,
+    loginBtnText: document.getElementById('loginBtnText') as HTMLSpanElement,
+    logoutBtn: document.getElementById('logoutBtn') as HTMLButtonElement,
+    avatar: document.getElementById('userAvatar') as HTMLImageElement,
+    name: document.getElementById('userName')!,
+    email: document.getElementById('userEmail')!,
+    fallbackAvatar: '/assets/images/mewtwo.png',
   });
 </script>

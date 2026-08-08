@@ -106,55 +106,17 @@ const navLinks = [
 </script>
 
 <script>
-  import { loginWithGoogle, logout, getUser, isAuthenticated } from '@/lib/auth';
-  import { showToast } from '@/lib/toastTrigger';
+  import { initAuthUI } from '@/lib/auth-ui';
 
-  const loginSection = document.getElementById('mobile-auth-login')!;
-  const userSection = document.getElementById('mobile-auth-user')!;
-  const loginBtn = document.getElementById('mobileGoogleLoginBtn') as HTMLButtonElement;
-  const loginBtnText = document.getElementById('mobileLoginBtnText') as HTMLSpanElement;
-  const logoutBtn = document.getElementById('mobileLogoutBtn') as HTMLButtonElement;
-  const avatar = document.getElementById('mobileUserAvatar') as HTMLImageElement;
-  const nameEl = document.getElementById('mobileUserName')!;
-  const emailEl = document.getElementById('mobileUserEmail')!;
-
-  function updateUI() {
-    if (isAuthenticated()) {
-      loginSection.classList.add('hidden');
-      userSection.classList.remove('hidden');
-      const user = getUser();
-      if (user) {
-        avatar.src = user.picture || '';
-        nameEl.textContent = user.name || '';
-        emailEl.textContent = user.email || '';
-      }
-    } else {
-      loginSection.classList.remove('hidden');
-      userSection.classList.add('hidden');
-    }
-  }
-
-  function setLoading(loading: boolean) {
-    loginBtn.disabled = loading;
-    loginBtnText.textContent = loading ? 'Cargando...' : 'Iniciar sesión';
-  }
-
-  updateUI();
-
-  loginBtn.addEventListener('click', async () => {
-    setLoading(true);
-    try {
-      await loginWithGoogle();
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Error al iniciar sesión', 'error');
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  logoutBtn.addEventListener('click', () => {
-    logout();
-    updateUI();
-    window.addEventListener('authchange', updateUI);
+  initAuthUI({
+    loginSection: document.getElementById('mobile-auth-login')!,
+    userSection: document.getElementById('mobile-auth-user')!,
+    loginBtn: document.getElementById('mobileGoogleLoginBtn') as HTMLButtonElement,
+    loginBtnText: document.getElementById('mobileLoginBtnText') as HTMLSpanElement,
+    logoutBtn: document.getElementById('mobileLogoutBtn') as HTMLButtonElement,
+    avatar: document.getElementById('mobileUserAvatar') as HTMLImageElement,
+    name: document.getElementById('mobileUserName')!,
+    email: document.getElementById('mobileUserEmail')!,
+    fallbackAvatar: '/assets/images/mewtwo.png',
   });
 </script>
