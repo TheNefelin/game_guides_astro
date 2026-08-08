@@ -1,19 +1,24 @@
 import type { Game, GameDetail } from '@/types/game';
 import type { Result } from '@/types/result';
 
-export async function getGames(origin: string): Promise<Result<Game[]>> {
+export interface GameListResult {
+  items: Game[];
+  total: number;
+}
+
+export async function getGames(origin: string): Promise<Result<GameListResult>> {
   try {
-    const res = await fetch(`${origin}/api/proxy/games?page=1&limit=10`);
+    const res = await fetch(`${origin}/api/proxy/games?page=1&limit=100`);
     const body = await res.json();
 
     if (!res.ok) {
       const msg = body?.detail ?? body?.error ?? 'Error al cargar juegos';
-      return [[], msg];
+      return [{ items: [], total: 0 }, msg];
     }
 
-    return [body?.items ?? [], null];
+    return [{ items: body?.items ?? [], total: body?.total ?? 0 }, null];
   } catch {
-    return [[], 'Error de conexión con el servidor'];
+    return [{ items: [], total: 0 }, 'Error de conexión con el servidor'];
   }
 }
 

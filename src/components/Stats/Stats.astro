@@ -1,20 +1,23 @@
----
+--- 
 import type { Game } from '@/types/game';
 
 interface Props {
   games: Game[];
+  totalGames: number;
 }
 
-const { games } = Astro.props;
+const { games, totalGames } = Astro.props;
 
-const totalGames: number = games.length;
-const average = (games.reduce((sum, game) => sum + (game.rating ?? 0), 0) / (games.length * 2)).toFixed(1);;
+const rated = games.filter((g) => g.rating != null);
+const average = (rated.reduce((sum, g) => sum + (g.rating as number), 0) / (rated.length * 2 || 1)).toFixed(1);
+const genreCount = new Set(games.flatMap((g) => g.genres.map((genre) => genre.id))).size;
+const platformCount = new Set(games.flatMap((g) => g.platforms.map((p) => p.id))).size;
 
 const stats = [
-  { value: totalGames, label: 'Guías Completas', color: 'text-primary' },
-  { value: average, label: 'Valoración', color: 'text-error' },
-  { value: 0, label: 'Avance', color: 'text-accent' },
-  { value: 0, label: 'Guías Terminadas', color: 'text-primary' },
+  { value: totalGames, label: 'Total de juegos', color: 'text-primary' },
+  { value: average, label: 'Valoración promedio', color: 'text-error' },
+  { value: genreCount, label: 'Géneros', color: 'text-accent' },
+  { value: platformCount, label: 'Plataformas', color: 'text-primary' },
 ];
 ---
 

@@ -2,7 +2,6 @@ import { showToast } from '@/lib/toastTrigger';
 
 type AuthTokens = {
   token: string;
-  refresh_token: string;
   user: {
     id_user: string;
     email: string;
@@ -14,12 +13,10 @@ type AuthTokens = {
 
 // ---------- Tokens y sesión (localStorage) ----------
 
+// Solo el access token vive en localStorage. El refresh_token NO: lo guarda
+// el proxy (BFF) en una cookie HttpOnly, invisible para JS (ver proxy/auth).
 export function getAccessToken(): string | null {
   return localStorage.getItem('access_token');
-}
-
-export function getRefreshToken(): string | null {
-  return localStorage.getItem('refresh_token');
 }
 
 export function getUser(): AuthTokens['user'] | null {
@@ -57,9 +54,12 @@ export async function clearExpiredSession(): Promise<void> {
   if (!refreshed) logout();
 }
 
-// ---------- Cierre de sesión (solo local: borra tokens + notifica) ----------
+// ---------- Cierre de sesión ----------
 
+// Revoca la sesión en el backend (el proxy lee la cookie HttpOnly y la borra)
+// + limpia el localStorage local + notifica. Fire-and-forget: la UI no espera.
 export function logout(): void {
+  void fetch('/api/proxy/auth/logout', { method: 'POST' });
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('user');
@@ -113,7 +113,6 @@ export async function loginWithGoogle(): Promise<void> {
 
           const data: AuthTokens = await res.json();
           localStorage.setItem('access_token', data.token);
-          localStorage.setItem('refresh_token', data.refresh_token);
           localStorage.setItem('user', JSON.stringify(data.user));
 
           window.location.reload();
@@ -130,24 +129,20 @@ export async function loginWithGoogle(): Promise<void> {
 
 // ---------- Refresh token (rotación) ----------
 
-// Rota el access token con el refresh_token. No hace logout en fallo:
+// Rota el access token. El refresh_token lo lee el proxy desde la cookie
+// HttpOnly (el navegador no lo envía en el body). No hace logout en fallo:
 // el caller decide (apiFetch hace logout si el refresh falla).
 export async function refreshAccessToken(): Promise<string | null> {
-  const refresh_token = getRefreshToken();
-  if (!refresh_token) return null;
-
   try {
     const res = await fetch('/api/proxy/auth/refresh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token }),
     });
 
     if (!res.ok) return null;
 
     const data = await res.json();
     localStorage.setItem('access_token', data.token);
-    localStorage.setItem('refresh_token', data.refresh_token);
 
     return data.token;
   } catch {
@@ -161,15 +156,12 @@ export async function refreshAccessToken(): Promise<string | null> {
 // silencioso (rotación) y reintenta la request UNA vez; si el refresh falla
 // hace logout() (que dispara authchange → la UI se re-sincroniza sola).
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const authHeaders = getAccessToken()
-    ? { Authorization: `Bearer ${getAccessToken()}` }
-    : {};
-
-  const doFetch = () =>
-    fetch(`/api/proxy/${path}`, {
-      ...init,
-      headers: { ...authHeaders, ...init.headers },
-    });
+  const doFetch = () => {
+    const headers = new Headers(init.headers);
+    const token = getAccessToken();
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return fetch(`/api/proxy/${path}`, { ...init, headers });
+  };
 
   let res = await doFetch();
 

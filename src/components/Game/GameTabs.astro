@@ -77,27 +77,26 @@ const tabs = [
 </section>
 
 <script>
-  // @ts-nocheck
-  var ACTIVE = ['text-primary', 'bg-primary/15', 'border-primary/30'];
-  var INACTIVE = ['text-base-content/50', 'border-transparent'];
-  var tabBtns = document.querySelectorAll('[data-tab]');
-  var panels = document.querySelectorAll('[id^="tab-"]');
+  const ACTIVE = ['text-primary', 'bg-primary/15', 'border-primary/30'] as const;
+  const INACTIVE = ['text-base-content/50', 'border-transparent'] as const;
 
-  for (var i = 0; i < tabBtns.length; i++) {
-    tabBtns[i].addEventListener('click', function () {
-      var id = this.getAttribute('data-tab');
-     
-      for (var j = 0; j < tabBtns.length; j++) {
-        var b = tabBtns[j];
-        for (var c = 0; c < ACTIVE.length; c++) b.classList.remove(ACTIVE[c]);
-        for (var c = 0; c < INACTIVE.length; c++) b.classList.add(INACTIVE[c]);
+  const tabBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tab]'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('[id^="tab-"]'));
+
+  for (const btn of tabBtns) {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-tab');
+
+      for (const b of tabBtns) {
+        b.classList.remove(...ACTIVE);
+        b.classList.add(...INACTIVE);
       }
-     
-      for (var k = 0; k < panels.length; k++) panels[k].classList.add('hidden');
-      for (var c = 0; c < INACTIVE.length; c++) this.classList.remove(INACTIVE[c]);
-      for (var c = 0; c < ACTIVE.length; c++) this.classList.add(ACTIVE[c]);
-      
-      var panel = document.getElementById('tab-' + id);
+
+      for (const panel of panels) panel.classList.add('hidden');
+      btn.classList.remove(...INACTIVE);
+      btn.classList.add(...ACTIVE);
+
+      const panel = id ? document.getElementById('tab-' + id) : null;
       if (panel) panel.classList.remove('hidden');
     });
   }

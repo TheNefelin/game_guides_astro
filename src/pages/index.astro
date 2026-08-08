@@ -8,7 +8,9 @@ import FeaturedGames from '@/components/FeaturedGames/FeaturedGames.astro';
 import Stats from '@/components/Stats/Stats.astro';
 import ToastContainter from '@/components/toastContainter.astro';
 
-const [games, error] = await getGames(Astro.url.origin);
+const [result, error] = await getGames(Astro.url.origin);
+const games = result.items;
+const totalGames = result.total;
 ---
 
 <Layout 
@@ -19,7 +21,7 @@ const [games, error] = await getGames(Astro.url.origin);
 
   <Hero />
 
-  <Stats games={games} />
+  <Stats games={games} totalGames={totalGames} />
 
   <WelcomeParallax />
 

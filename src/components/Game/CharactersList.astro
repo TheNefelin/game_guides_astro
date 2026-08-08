@@ -120,62 +120,66 @@ const total = characters.length;
 </dialog>
 
 <script>
-  // @ts-nocheck
-  var input = document.getElementById('characterSearch');
-  if (input) {
-    input.addEventListener('input', function () {
-      var q = this.value.toLowerCase().trim();
-      var cards = document.querySelectorAll('#characterGrid [data-char]');
-      for (var i = 0; i < cards.length; i++) {
-        cards[i].classList.toggle('hidden', q !== '' && cards[i].getAttribute('data-name').indexOf(q) === -1);
-      }
-    });
+  const grid = document.getElementById('characterGrid');
+  const cards = Array.from(grid?.querySelectorAll<HTMLElement>('[data-char]') ?? []);
+  const modal = document.getElementById('character-modal') as HTMLDialogElement | null;
+
+  const search = document.getElementById('characterSearch') as HTMLInputElement | null;
+  search?.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    for (const card of cards) {
+      const name = card.getAttribute('data-name') ?? '';
+      card.classList.toggle('hidden', q !== '' && !name.includes(q));
+    }
+  });
+
+  function setText(id: string, value: string | null): void {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value ?? '';
   }
 
-  function setText(id, value) {
-    var el = document.getElementById(id);
-    if (el) el.textContent = value;
-  }
-
-  function formatDate(iso) {
+  function formatDate(iso: string | null): string {
     if (!iso) return '';
-    var d = new Date(iso);
+    const d = new Date(iso);
     return isNaN(d.getTime()) ? iso : d.toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
   }
 
-  var modal = document.getElementById('character-modal');
-  var cards = document.querySelectorAll('#characterGrid [data-char]');
+  for (const card of cards) {
+    card.addEventListener('click', () => {
+      const attr = (name: string) => card.getAttribute(name);
 
-  for (var i = 0; i < cards.length; i++) {
-    cards[i].addEventListener('click', function () {
-      setText('char-modal-name', this.getAttribute('data-label'));
-      setText('char-modal-sort', '#' + this.getAttribute('data-sort'));
-      setText('char-modal-slug', '/' + this.getAttribute('data-slug'));
-      setText('char-modal-description', this.getAttribute('data-description') || 'Sin descripción.');
-      setText('char-modal-id', this.getAttribute('data-id'));
-      setText('char-modal-game-id', this.getAttribute('data-game-id'));
-      setText('char-modal-created', formatDate(this.getAttribute('data-created')));
-      setText('char-modal-updated', formatDate(this.getAttribute('data-updated')));
+      setText('char-modal-name', attr('data-label'));
+      setText('char-modal-sort', attr('data-sort') ? `#${attr('data-sort')}` : '');
+      setText('char-modal-slug', attr('data-slug') ? `/${attr('data-slug')}` : '');
+      setText('char-modal-description', attr('data-description') || 'Sin descripción.');
+      setText('char-modal-id', attr('data-id'));
+      setText('char-modal-game-id', attr('data-game-id'));
+      setText('char-modal-created', formatDate(attr('data-created')));
+      setText('char-modal-updated', formatDate(attr('data-updated')));
 
-      var img = document.getElementById('char-modal-img');
-      var icon = document.getElementById('char-modal-icon');
-      var imgUrl = this.getAttribute('data-img');
-      if (imgUrl) {
-        img.src = imgUrl;
-        img.alt = this.getAttribute('data-label');
-        img.style.display = 'block';
-        icon.style.display = 'none';
-      } else {
-        img.style.display = 'none';
-        icon.style.display = 'block';
+      const img = document.getElementById('char-modal-img') as HTMLImageElement | null;
+      const icon = document.getElementById('char-modal-icon') as HTMLElement | null;
+      const imgUrl = attr('data-img');
+      if (img && icon) {
+        if (imgUrl) {
+          img.src = imgUrl;
+          img.alt = attr('data-label') ?? '';
+          img.style.display = 'block';
+          icon.style.display = 'none';
+        } else {
+          img.style.display = 'none';
+          icon.style.display = 'block';
+        }
       }
 
-      var badge = document.getElementById('char-modal-playable');
-      var playable = this.getAttribute('data-playable') === 'true';
-      badge.textContent = playable ? 'Jugable' : 'No jugable';
-      badge.className = 'badge badge-sm shrink-0 ' + (playable ? 'badge-accent' : 'badge-error');
+      const badge = document.getElementById('char-modal-playable') as HTMLElement | null;
+      const playable = attr('data-playable') === 'true';
+      if (badge) {
+        badge.textContent = playable ? 'Jugable' : 'No jugable';
+        badge.className = 'badge badge-sm shrink-0 ' + (playable ? 'badge-accent' : 'badge-error');
+      }
 
-      modal.showModal();
+      modal?.showModal();
     });
   }
 </script>
