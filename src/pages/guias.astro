@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import ToastContainter from '@/components/toastContainter.astro';
-import FeaturedGameCard from '@/components/FeaturedGames/FeaturedGameCard.astro';
+import ToastContainer from '@/components/toastContainer.astro';
+import GameCard from '@/components/GameCard.astro';
 import TagPill from '@/components/TagPill.astro';
 import { getGames } from '@/services/games';
 
@@ -66,7 +66,7 @@ const topGenres = [...genreCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0
     {
       visible.length > 0 ? (
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {visible.map((game, i) => <FeaturedGameCard game={game} index={i} />)}
+          {visible.map((game, i) => <GameCard game={game} index={i} />)}
         </div>
       ) : (
         <div class="text-center py-16 text-base-content/30">
@@ -125,6 +125,6 @@ const topGenres = [...genreCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0
   </section>
 
   {
-    error && <ToastContainter message={error} type="error" />
+    error && <ToastContainer message={error} type="error" />
   }
 </Layout>

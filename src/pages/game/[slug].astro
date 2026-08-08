@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import ToastContainter from '@/components/toastContainter.astro';
+import ToastContainer from '@/components/toastContainer.astro';
 import GameHero from '@/components/Game/GameHero.astro';
 import GameTabs from '@/components/Game/GameTabs.astro';
 import { getGameBySlug } from '@/services/games';
@@ -22,6 +22,6 @@ const bgImage: string = game.screenshots?.[0]?.image_url ?? bottomless;
   <GameTabs game={game} screenshots={game.screenshots ?? []} maps={game.maps ?? []} />
 
   {
-    error && <ToastContainter message={error} type="error" />
+    error && <ToastContainer message={error} type="error" />
   }
 </Layout>

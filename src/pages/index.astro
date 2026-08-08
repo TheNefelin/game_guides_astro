@@ -6,7 +6,7 @@ import GameSlider from '@/components/GameSlider/GameSlider.astro';
 import WelcomeParallax from '@/components/WelcomeParallax/WelcomeParallax.astro';
 import FeaturedGames from '@/components/FeaturedGames/FeaturedGames.astro';
 import Stats from '@/components/Stats/Stats.astro';
-import ToastContainter from '@/components/toastContainter.astro';
+import ToastContainer from '@/components/toastContainer.astro';
 
 const [result, error] = await getGames(Astro.url.origin);
 const games = result.items;
@@ -28,6 +28,6 @@ const totalGames = result.total;
   <FeaturedGames games={games} />
 
   {
-    error && <ToastContainter message={error} type="error" />
+    error && <ToastContainer message={error} type="error" />
   }
 </Layout>

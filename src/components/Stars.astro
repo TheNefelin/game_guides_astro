@@ -4,7 +4,7 @@ interface Props {
 }
 
 const { rating } = Astro.props;
-const filled = rating ? Math.round(rating / 2) : 0;
+const filled = rating == null ? 0 : Math.min(5, Math.max(0, Math.round(rating / 2)));
 ---
 
 <span class="inline-flex items-center gap-0.5 bg-base-100/90 rounded-md px-2 py-1">
