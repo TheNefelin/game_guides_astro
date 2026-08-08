@@ -47,11 +47,14 @@ export function isAuthenticated(): boolean {
   return !!token && !isTokenExpired(token);
 }
 
-export function clearExpiredSession(): void {
+// Al boot, si el access token venció se intenta un refresh silencioso (rotación);
+// solo se hace logout si el refresh falla (refresh_token ausente o ya revocado).
+export async function clearExpiredSession(): Promise<void> {
   const token = getAccessToken();
-  if (token && isTokenExpired(token)) {
-    logout();
-  }
+  if (!token || !isTokenExpired(token)) return;
+
+  const refreshed = await refreshAccessToken();
+  if (!refreshed) logout();
 }
 
 // ---------- Cierre de sesión (solo local: borra tokens + notifica) ----------
@@ -127,6 +130,8 @@ export async function loginWithGoogle(): Promise<void> {
 
 // ---------- Refresh token (rotación) ----------
 
+// Rota el access token con el refresh_token. No hace logout en fallo:
+// el caller decide (apiFetch hace logout si el refresh falla).
 export async function refreshAccessToken(): Promise<string | null> {
   const refresh_token = getRefreshToken();
   if (!refresh_token) return null;
@@ -138,10 +143,7 @@ export async function refreshAccessToken(): Promise<string | null> {
       body: JSON.stringify({ refresh_token }),
     });
 
-    if (!res.ok) {
-      logout();
-      return null;
-    }
+    if (!res.ok) return null;
 
     const data = await res.json();
     localStorage.setItem('access_token', data.token);
@@ -149,7 +151,36 @@ export async function refreshAccessToken(): Promise<string | null> {
 
     return data.token;
   } catch {
-    logout();
     return null;
   }
+}
+
+// ---------- Fetch autenticado con refresh+retry ----------
+
+// Wrapper del proxy para peticiones con Bearer. En 401 hace un refresh
+// silencioso (rotación) y reintenta la request UNA vez; si el refresh falla
+// hace logout() (que dispara authchange → la UI se re-sincroniza sola).
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const authHeaders = getAccessToken()
+    ? { Authorization: `Bearer ${getAccessToken()}` }
+    : {};
+
+  const doFetch = () =>
+    fetch(`/api/proxy/${path}`, {
+      ...init,
+      headers: { ...authHeaders, ...init.headers },
+    });
+
+  let res = await doFetch();
+
+  if (res.status === 401) {
+    const token = await refreshAccessToken();
+    if (token) {
+      res = await doFetch();
+    } else {
+      logout();
+    }
+  }
+
+  return res;
 }

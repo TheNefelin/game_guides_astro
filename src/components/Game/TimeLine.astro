@@ -131,7 +131,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
 
 
 <script>
-  import { getAccessToken, isAuthenticated, logout } from '@/lib/auth';
+  import { apiFetch, isAuthenticated } from '@/lib/auth';
   import { showToast } from '@/lib/toastTrigger';
   import type { GuideCheck, AdventureCheck, HttpMethod, RequestBody, UserProgressResponse } from '@/types/progress';
 
@@ -248,10 +248,9 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
   async function fetchProgress<T>(path: string, method: HttpMethod = 'GET', body?: RequestBody): Promise<T | null> {
     let res: Response;
     try {
-      res = await fetch('/api/proxy/' + path, {
+      res = await apiFetch(path, {
         method,
         headers: { 
-          Authorization: 'Bearer ' + getAccessToken(), 
           ...(body && { 'Content-Type': 'application/json' }),
         },
         body: body ? JSON.stringify(body) : undefined,
@@ -261,17 +260,12 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
       return null;
     }
 
-    if (res.status === 401) {
-      logout();
-      return null;
-    }
-
     if (!res.ok) {
       showToast(`Error al sincronizar progreso (${res.status})`, 'error');
       return null;
     }
 
-    if (res.status === 204) return {} as T; 
+    if (res.status === 204) return {} as T;
     return (await res.json()) as T;
   }
 

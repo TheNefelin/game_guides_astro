@@ -1,8 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-const contactEmail = 'tu-email@ejemplo.com';
-
 const reasons = [
   { value: 'colaborar', label: 'Colaborar con una guía' },
   { value: 'reclamo', label: 'Reclamo' },
@@ -34,13 +32,13 @@ const reasons = [
       <p class="text-gray-400 text-sm mb-6">Completá el formulario y se abrirá tu cliente de correo con el mensaje listo.</p>
     </header>
 
-    <form class="grid gap-2 p-2">
+    <form id="contactForm" class="grid gap-2 p-2" novalidate>
       <fieldset class="fieldset">
         <header class="flex gap-2">
           <i class="fa-solid fa-tags text-base-content/30 text-sm"></i>
-          <label for="name" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Motivo</label>
+          <label for="reason" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Motivo</label>
         </header>
-        <select class="select w-full">
+        <select id="reason" name="reason" class="select w-full" required>
           { reasons.map((r) => <option value={r.value}>{r.label}</option>) }
         </select>
       </fieldset>
@@ -50,7 +48,7 @@ const reasons = [
           <i class="fa-solid fa-user text-base-content/30 text-sm"></i>
           <label for="name" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Nombre</label>
         </header>
-        <input type="text" class="input w-full" placeholder="Tu nombre" />
+        <input type="text" id="name" name="name" class="input w-full" placeholder="Tu nombre" required />
       </fieldset>
 
       <fieldset class="fieldset">
@@ -58,7 +56,7 @@ const reasons = [
           <i class="fa-solid fa-envelope text-base-content/30 text-sm"></i>
           <label for="email" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Email</label>
         </header>
-        <input type="text" class="input w-full" placeholder="tucorreo@ejemplo.com" />
+        <input type="email" id="email" name="email" class="input w-full" placeholder="tucorreo@ejemplo.com" required />
       </fieldset>
 
       <fieldset class="fieldset">
@@ -66,7 +64,7 @@ const reasons = [
           <i class="fa-solid fa-envelope-open-text text-base-content/30 text-sm"></i>
           <label for="message" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Mensaje</label>
         </header>
-        <textarea class="textarea h-36 w-full" placeholder="En qué podemos ayudarte..."></textarea>
+        <textarea id="message" name="message" class="textarea h-36 w-full" placeholder="En qué podemos ayudarte..." required></textarea>
       </fieldset>
   
       <button type="submit" class="btn btn-accent w-full text-sm">
@@ -76,4 +74,26 @@ const reasons = [
     </form>
   </section>
 </Layout>
+
+<script>
+  const contactEmail = 'tu-email@ejemplo.com';
+
+  const form = document.getElementById('contactForm') as HTMLFormElement;
+  const reason = document.getElementById('reason') as HTMLSelectElement;
+  const name = document.getElementById('name') as HTMLInputElement;
+  const email = document.getElementById('email') as HTMLInputElement;
+  const message = document.getElementById('message') as HTMLTextAreaElement;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const subject = `[${reason.value}] ${name.value}`;
+    const body = `Nombre: ${name.value}\nEmail: ${email.value}\n\n${message.value}`;
+    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  });
+</script>
 

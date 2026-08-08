@@ -64,7 +64,7 @@ const {
 <script>
   import { clearExpiredSession } from '@/lib/auth';
 
-  clearExpiredSession();
+  void clearExpiredSession();
 
   const main = document.querySelector('main');
   const FADE_OUT_MS = 600;
