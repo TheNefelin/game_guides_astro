@@ -17,14 +17,20 @@ const { games } = Astro.props;
         Acceso Rápido
       </span>
 
-      <div class="flex gap-1">
-        <button class="w-7 h-7 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-quick-prev">
-          <i class="fa-solid fa-chevron-left text-xs"></i>
-        </button>
+      <div class="flex items-center gap-3">
+        <a href="/guias" class="text-primary text-xs font-medium hover:underline">
+          Ver todas
+        </a>
 
-        <button class="w-7 h-7 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-quick-next">
-          <i class="fa-solid fa-chevron-right text-xs"></i>
-        </button>
+        <div class="flex gap-1">
+          <button class="w-7 h-7 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-quick-prev">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
+          </button>
+
+          <button class="w-7 h-7 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all swiper-quick-next">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+          </button>
+        </div>
       </div>
     </div>
 

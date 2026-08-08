@@ -1,0 +1,130 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import ToastContainter from '@/components/toastContainter.astro';
+import FeaturedGameCard from '@/components/FeaturedGames/FeaturedGameCard.astro';
+import TagPill from '@/components/TagPill.astro';
+import { getGames } from '@/services/games';
+
+const PER_PAGE = 12;
+
+const page = Number(Astro.url.searchParams.get('page') ?? '1');
+const safePage = Math.max(1, Number.isFinite(page) ? page : 1);
+
+const [result, error] = await getGames(Astro.url.origin);
+const games = result.items;
+const total = result.total;
+
+const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+const currentPage = Math.min(safePage, totalPages);
+
+const visible = games.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+
+const prevHref = currentPage > 1 ? `/guias?page=${currentPage - 1}` : null;
+const nextHref = currentPage < totalPages ? `/guias?page=${currentPage + 1}` : null;
+
+const genreCounts = new Map<string, number>();
+for (const g of games) {
+  for (const genre of g.genres) {
+    genreCounts.set(genre.name, (genreCounts.get(genre.name) ?? 0) + 1);
+  }
+}
+const topGenres = [...genreCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+---
+
+<Layout
+  title="Todas las Guías - Game Guides"
+  description="Explorá todas las guías de juegos disponibles en Game Guides.">
+
+  <section class="max-w-7xl mx-auto px-4 lg:px-8 pt-28 pb-12">
+    <div class="mb-3">
+      <TagPill text="Catálogo completo" />
+    </div>
+    <h1 class="font-gaming text-3xl md:text-4xl font-bold text-base-content">Todas las Guías</h1>
+    <p class="text-base-content/60 mt-2 text-sm md:text-base">
+      {total} {total === 1 ? 'juego' : 'juegos'} disponibles — página {currentPage} de {totalPages}
+    </p>
+  </section>
+
+  {
+    topGenres.length > 0 && (
+      <section class="max-w-7xl mx-auto px-4 lg:px-8 pb-8">
+        <div class="flex flex-wrap gap-2">
+          {topGenres.map(([name]) => (
+            <a
+              href={`/genero/${encodeURIComponent(name.toLowerCase())}`}
+              class="px-4 py-1.5 rounded-full border border-base-content/10 bg-base-content/5 text-xs md:text-sm text-base-content/70 hover:text-primary hover:border-primary/30 transition-all"
+            >
+              {name}
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="max-w-7xl mx-auto px-4 lg:px-8 pb-16">
+    {
+      visible.length > 0 ? (
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {visible.map((game, i) => <FeaturedGameCard game={game} index={i} />)}
+        </div>
+      ) : (
+        <div class="text-center py-16 text-base-content/30">
+          <i class="fa-solid fa-book text-4xl mb-4 block"></i>
+          <p>No hay juegos disponibles.</p>
+        </div>
+      )
+    }
+
+    {
+      totalPages > 1 && (
+        <nav class="flex items-center justify-center gap-2 mt-12" aria-label="Paginación">
+          {
+            prevHref ? (
+              <a href={prevHref} class="w-9 h-9 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+              </a>
+            ) : (
+              <span class="w-9 h-9 rounded-full bg-base-content/5 border border-base-content/5 flex items-center justify-center text-base-content/20 cursor-not-allowed">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+              </span>
+            )
+          }
+
+          {
+            Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <a
+                href={`/guias?page=${p}`}
+                aria-current={p === currentPage ? 'page' : undefined}
+                class:list={[
+                  'w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all',
+                  p === currentPage
+                    ? 'bg-primary text-primary-content'
+                    : 'bg-base-content/5 border border-base-content/10 text-base-content/60 hover:text-primary hover:border-primary/30',
+                ]}
+              >
+                {p}
+              </a>
+            ))
+          }
+
+          {
+            nextHref ? (
+              <a href={nextHref} class="w-9 h-9 rounded-full bg-base-content/5 border border-base-content/10 flex items-center justify-center text-base-content/60 hover:text-primary hover:border-primary/30 transition-all">
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </a>
+            ) : (
+              <span class="w-9 h-9 rounded-full bg-base-content/5 border border-base-content/5 flex items-center justify-center text-base-content/20 cursor-not-allowed">
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </span>
+            )
+          }
+        </nav>
+      )
+    }
+  </section>
+
+  {
+    error && <ToastContainter message={error} type="error" />
+  }
+</Layout>

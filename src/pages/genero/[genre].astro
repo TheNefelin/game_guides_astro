@@ -1,0 +1,76 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import ToastContainter from '@/components/toastContainter.astro';
+import FeaturedGameCard from '@/components/FeaturedGames/FeaturedGameCard.astro';
+import TagPill from '@/components/TagPill.astro';
+import { getGames } from '@/services/games';
+
+const { genre } = Astro.params;
+const genreSlug = (genre ?? '').toLowerCase();
+
+const [result, error] = await getGames(Astro.url.origin);
+const games = result.items;
+
+const genreNames = new Set<string>();
+for (const g of games) for (const gen of g.genres) genreNames.add(gen.name);
+const sortedGenres = [...genreNames].sort((a, b) => a.localeCompare(b, 'es'));
+
+const filtered = games.filter((g) =>
+  g.genres.some((gen) => gen.name.toLowerCase() === genreSlug)
+);
+
+const selectedName = sortedGenres.find((name) => name.toLowerCase() === genreSlug) ?? genre ?? genreSlug;
+---
+
+<Layout
+  title={`${selectedName} - Game Guides`}
+  description={`Guías de juegos de ${selectedName}.`}>
+
+  <section class="max-w-7xl mx-auto px-4 lg:px-8 pt-28 pb-12">
+    <div class="mb-3">
+      <TagPill text="Categoría" />
+    </div>
+    <h1 class="font-gaming text-3xl md:text-4xl font-bold text-base-content capitalize">{selectedName}</h1>
+    <p class="text-base-content/60 mt-2 text-sm md:text-base">
+      {filtered.length} {filtered.length === 1 ? 'juego' : 'juegos'}
+    </p>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 lg:px-8 pb-8">
+    <div class="flex flex-wrap gap-2">
+      {sortedGenres.map((name) => (
+        <a
+          href={`/genero/${encodeURIComponent(name.toLowerCase())}`}
+          class:list={[
+            'px-4 py-1.5 rounded-full border text-xs md:text-sm transition-all',
+            name.toLowerCase() === genreSlug
+              ? 'border-primary/30 bg-primary/15 text-primary'
+              : 'border-base-content/10 bg-base-content/5 text-base-content/70 hover:text-primary hover:border-primary/30',
+          ]}
+        >
+          {name}
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 lg:px-8 pb-16">
+    {
+      filtered.length > 0 ? (
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {filtered.map((game, i) => <FeaturedGameCard game={game} index={i} />)}
+        </div>
+      ) : (
+        <div class="text-center py-16 text-base-content/30">
+          <i class="fa-solid fa-folder-open text-4xl mb-4 block"></i>
+          <p>No hay juegos en esta categoría todavía.</p>
+          <a href="/guias" class="inline-block mt-4 text-primary text-sm hover:underline">Ver todas las guías</a>
+        </div>
+      )
+    }
+  </section>
+
+  {
+    error && <ToastContainter message={error} type="error" />
+  }
+</Layout>
