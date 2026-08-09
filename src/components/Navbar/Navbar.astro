@@ -108,6 +108,7 @@ const navLinks = [
 
 <script>
   import { initAuthUI } from '@/lib/auth-ui';
+  import mewtwoFallback from '@/assets/images/mewtwo.png';
 
   initAuthUI({
     loginSection: document.getElementById('mobile-auth-login')!,
@@ -118,6 +119,6 @@ const navLinks = [
     avatar: document.getElementById('mobileUserAvatar') as HTMLImageElement,
     name: document.getElementById('mobileUserName')!,
     email: document.getElementById('mobileUserEmail')!,
-    fallbackAvatar: '/assets/images/mewtwo.png',
+    fallbackAvatar: mewtwoFallback.src,
   });
 </script>

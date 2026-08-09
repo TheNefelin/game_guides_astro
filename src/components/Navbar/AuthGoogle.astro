@@ -55,6 +55,7 @@ import mewtwoFallback from '@/assets/images/mewtwo.png';
 
 <script>
   import { initAuthUI } from '@/lib/auth-ui';
+  import mewtwoFallback from '@/assets/images/mewtwo.png';
 
   initAuthUI({
     loginSection: document.getElementById('auth-login')!,
@@ -65,6 +66,6 @@ import mewtwoFallback from '@/assets/images/mewtwo.png';
     avatar: document.getElementById('userAvatar') as HTMLImageElement,
     name: document.getElementById('userName')!,
     email: document.getElementById('userEmail')!,
-    fallbackAvatar: '/assets/images/mewtwo.png',
+    fallbackAvatar: mewtwoFallback.src,
   });
 </script>
