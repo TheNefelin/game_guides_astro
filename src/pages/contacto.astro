@@ -29,7 +29,7 @@ const reasons = [
         <i class="fa-solid fa-paper-plane text-accent"></i>
         Enviar mensaje
       </h2>
-      <p class="text-gray-400 text-sm mb-6">Completá el formulario y se abrirá tu cliente de correo con el mensaje listo.</p>
+      <p class="text-gray-400 text-sm mb-6">Completá el formulario y te responderemos al correo asociado a tu cuenta.</p>
     </header>
 
     <form id="contactForm" class="grid gap-2 p-2" novalidate>
@@ -56,7 +56,7 @@ const reasons = [
           <i class="fa-solid fa-envelope text-base-content/30 text-sm"></i>
           <label for="email" class="block text-xs font-semibold text-base-content/50 uppercase tracking-wider">Email</label>
         </header>
-        <input type="email" id="email" name="email" class="input w-full" placeholder="tucorreo@ejemplo.com" required />
+        <input type="email" id="email" name="email" class="input w-full" placeholder="tucorreo@ejemplo.com" readonly data-auth-email disabled />
       </fieldset>
 
       <fieldset class="fieldset">
@@ -66,34 +66,79 @@ const reasons = [
         </header>
         <textarea id="message" name="message" class="textarea h-36 w-full" placeholder="En qué podemos ayudarte..." required></textarea>
       </fieldset>
-  
-      <button type="submit" class="btn btn-accent w-full text-sm">
-        <i class="fa-solid fa-paper-plane"></i>
-        Enviar mensaje
-      </button>
+
+      <div class="tooltip tooltip-top tooltip-start w-full" data-tip="Debes Iniciar Sesion">
+        <button type="submit" class="btn btn-accent w-full text-sm">
+          <i class="fa-solid fa-paper-plane"></i>
+          Enviar mensaje
+        </button>
+      </div>
     </form>
   </section>
 </Layout>
 
 <script>
-  const contactEmail = 'tu-email@ejemplo.com';
+  import { apiFetch, isAuthenticated, getUser } from '@/lib/auth';
+  import { showToast } from '@/lib/toastTrigger';
 
   const form = document.getElementById('contactForm') as HTMLFormElement;
+  const tooltip = form?.querySelector<HTMLElement>('.tooltip');
+  const submitBtn = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
   const reason = document.getElementById('reason') as HTMLSelectElement;
   const name = document.getElementById('name') as HTMLInputElement;
   const email = document.getElementById('email') as HTMLInputElement;
   const message = document.getElementById('message') as HTMLTextAreaElement;
 
-  form.addEventListener('submit', (e) => {
+  function updateUI() {
+    const authed = isAuthenticated();
+    const user = getUser();
+    submitBtn?.classList.toggle('btn-disabled', !authed);
+    email.disabled = !authed;
+    if (authed && user?.email) email.value = user.email;
+    else email.value = '';
+    if (authed) tooltip?.removeAttribute('data-tip');
+    else tooltip?.setAttribute('data-tip', 'Debes Iniciar Sesion');
+  }
+
+  window.addEventListener('authchange', updateUI);
+  updateUI();
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
+    if (!isAuthenticated()) {
+      showToast('Debes Iniciar Sesión para enviar', 'warning');
+      return;
+    }
 
-    const subject = `[${reason.value}] ${name.value}`;
-    const body = `Nombre: ${name.value}\nEmail: ${email.value}\n\n${message.value}`;
-    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    submitBtn?.classList.add('btn-disabled');
+    try {
+      const res = await apiFetch('contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason.value, name: name.value, message: message.value }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const detail = Array.isArray(err.detail)
+          ? err.detail.map((e: { msg: string }) => e.msg).join(', ')
+          : err.detail;
+        showToast(detail || `Error al enviar el mensaje (${res.status})`, 'error');
+        return;
+      }
+
+      showToast('Mensaje enviado correctamente', 'success');
+      form.reset();
+      updateUI();
+    } catch {
+      showToast('Error de red, revisa tu conexión', 'error');
+    } finally {
+      submitBtn?.classList.remove('btn-disabled');
+    }
   });
 </script>
 
