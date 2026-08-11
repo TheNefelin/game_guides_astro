@@ -60,7 +60,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
                 </div>
                 <span class="text-base-content/60 text-sm">Marcar como completado</span>
               </div>
-              <p class="whitespace-pre-wrap font-extralight my-4">{ guide.summary}</p>
+              <p class="whitespace-pre-wrap font-extralight my-4">{guide.summary}</p>
             </header>
             <div class="space-y-4">
               {
@@ -74,7 +74,7 @@ const stepLabel = (isImportant: boolean, isOptional: boolean) => isImportant ? '
                       </div>
                       <span class="text-xs font-bold uppercase">{stepLabel(adv.is_important, adv.is_optional)}</span>
                     </div>
-                    <p class="text-sm py-4">{adv.description}</p>
+                    <p class="whitespace-pre-wrap text-sm py-4">{adv.description}</p>
                     <section class="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {
                         adv.images.map((img) => (
