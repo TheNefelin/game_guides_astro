@@ -40,24 +40,6 @@ const { games } = Astro.props;
   </div>
 </section>
 
-<style is:inline>
-  .swiper {
-    padding: 0.5rem 0 2.5rem;
-  }
-  .swiper-slide {
-    height: auto;
-  }
-  .swiper-pagination-bullet {
-    background: color-mix(in srgb, var(--color-neutral-content) 40%, transparent);
-    opacity: 1;
-  }
-  .swiper-pagination-bullet-active {
-    background: var(--color-primary);
-    width: 24px;
-    border-radius: 4px;
-  }
-</style>
-
 <script>
   import Swiper from 'swiper';
   import { Navigation, Pagination, Autoplay } from 'swiper/modules';

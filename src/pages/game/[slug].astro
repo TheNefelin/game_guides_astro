@@ -4,7 +4,7 @@ import ToastContainer from '@/components/toastContainer.astro';
 import GameHero from '@/components/Game/GameHero.astro';
 import GameTabs from '@/components/Game/GameTabs.astro';
 import { getGameBySlug } from '@/services/games';
-const bottomless = '/images/sin_guia.gif';
+import bottomless from '@/assets/images/sin_guia.gif';
 
 const { slug } = Astro.params;
 const [game, error] = await getGameBySlug(slug!, Astro.url.origin);
@@ -13,7 +13,7 @@ if (!game) {
   return Astro.redirect('/404');
 }
 
-const bgImage: string = game.screenshots?.[0]?.image_url ?? bottomless;
+const bgImage: string = game.screenshots?.[0]?.image_url ?? bottomless.src;
 ---
 
 <Layout title={`${game.name} - Game Guide`} description={game.description ?? undefined}>

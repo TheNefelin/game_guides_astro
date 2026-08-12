@@ -5,15 +5,10 @@ import Stars from '@/components/Stars.astro';
 
 interface Props {
   game: Game;
-  index?: number;
 }
 
-const { game, index = 0 } = Astro.props;
+const { game } = Astro.props;
 
-const icons = ['fa-dragon', 'fa-skull'];
-const icon = icons[index % icons.length];
-
-const platformLabel = game.platforms?.map(p => p.name).join(', ') ?? '';
 const genreName = game.genres?.[0]?.name ?? 'Juego';
 const coverUrl = game.cover_url ?? null;
 ---

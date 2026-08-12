@@ -33,20 +33,3 @@ const stats = [
     </div>
   </div>
 </section>
-
-<style is:global>
-  .stat-box::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-primary) 60%, transparent), transparent);
-    animation: shimmer 2s ease-in-out infinite;
-  }
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-</style>

@@ -66,7 +66,7 @@ const topGenres = [...genreCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0
     {
       visible.length > 0 ? (
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {visible.map((game, i) => <GameCard game={game} index={i} />)}
+          {visible.map((game) => <GameCard game={game} />)}
         </div>
       ) : (
         <div class="text-center py-16 text-base-content/30">

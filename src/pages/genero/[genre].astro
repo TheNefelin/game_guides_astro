@@ -64,7 +64,7 @@ const selectedName = sortedGenres.find((name) => name.toLowerCase() === genreSlu
     {
       filtered.length > 0 ? (
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {filtered.map((game, i) => <GameCard game={game} index={i} />)}
+          {filtered.map((game) => <GameCard game={game} />)}
         </div>
       ) : (
         <div class="text-center py-16 text-base-content/30">
