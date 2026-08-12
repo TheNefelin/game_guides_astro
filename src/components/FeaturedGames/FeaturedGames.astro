@@ -31,7 +31,7 @@ const { games } = Astro.props;
   <div class="swiper featuredSwiper">
     <div class="swiper-wrapper">
       {games.map((game, i) => (
-        <div class="swiper-slide">
+        <div class="swiper-slide pb-10">
           <FeaturedGameCard game={game} index={i} />
         </div>
       ))}
